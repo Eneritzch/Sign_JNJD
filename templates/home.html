@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}SignDetector{% endblock %}
+
+{% block content %}
+
+<!-- Background Elements -->
+<div class="gradient-bg"></div>
+<div class="fixed inset-0 pointer-events-none overflow-hidden" style="z-index: 0;">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+</div>
+
+<!-- Main Container -->
+<div class="hero-container max-w-7xl mx-auto px-6 py-16">
+    
+    <!-- Hero Section -->
+    <div class="text-center mb-20 float-animation">
+        <div class="inline-block glass-card px-6 py-2 rounded-full mb-8 hover:scale-105 transition-transform duration-300">
+            <span class="text-sm font-semibold text-gray-700 uppercase tracking-wider flex items-center gap-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
+                </svg>
+                Neural Network Powered
+            </span>
+        </div>
+        
+        <h1 class="text-2xl md:text-5xl font-black mb-6 leading-tight">
+            <span class="gradient-text">ARQUITECTURAS CNN</span>
+        </h1>
+        
+        <h2 class="text-3xl md:text-4xl font-light text-gray-600 mb-12 tracking-wide">
+            APLICADAS
+        </h2>
+        
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-12">
+            Descubre el poder del aprendizaje profundo con arquitecturas de vanguardia. 
+            Precisión sin precedentes en reconocimiento de lenguaje de señas.
+        </p>
+    </div>
+
+    <!-- Architecture Cards Section -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+        
+        <!-- EfficientNet-B1 -->
+        <div class="arch-card rounded-3xl p-8 hover-lift depth-shadow shine">
+            <div class="h-64 mb-8 viz-placeholder rounded-2xl card-image-wrapper">
+                <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=500&q=80" 
+                     alt="EfficientNet Neural Network" 
+                     class="card-image">
+            </div>
+            
+            <h3 class="text-2xl font-bold text-gray-800 mb-2 text-center">EFFICIENTNET-B1</h3>
+            <p class="text-sm text-gray-700 text-center mb-6 opacity-80">Arquitectura eficiente y escalable</p>
+            
+            <div class="text-center">
+                <div class="percentage-badge">85%</div>
+                <div class="mt-4 inline-block bg-white bg-opacity-30 px-4 py-2 rounded-full">
+                    <span class="text-sm font-semibold text-gray-800">Precisión</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Xception -->
+        <div class="arch-card rounded-3xl p-8 hover-lift depth-shadow shine">
+            <div class="h-64 mb-8 viz-placeholder rounded-2xl card-image-wrapper">
+                <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=500&q=80" 
+                     alt="Xception Architecture" 
+                     class="card-image">
+            </div>
+            
+            <h3 class="text-2xl font-bold text-gray-800 mb-2 text-center">XCEPTION</h3>
+            <p class="text-sm text-gray-700 text-center mb-6 opacity-80">Convoluciones separables por profundidad</p>
+            
+            <div class="text-center">
+                <div class="percentage-badge">90%</div>
+                <div class="mt-4 inline-block bg-white bg-opacity-30 px-4 py-2 rounded-full">
+                    <span class="text-sm font-semibold text-gray-800">Precisión</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ResNet50 -->
+        <div class="arch-card rounded-3xl p-8 hover-lift depth-shadow shine">
+            <div class="h-64 mb-8 viz-placeholder rounded-2xl card-image-wrapper">
+                <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=500&q=80" 
+                     alt="ResNet50 Deep Learning" 
+                     class="card-image">
+            </div>
+            
+            <h3 class="text-2xl font-bold text-gray-800 mb-2 text-center">RESNET50</h3>
+            <p class="text-sm text-gray-700 text-center mb-6 opacity-80">Red residual profunda de 50 capas</p>
+            
+            <div class="text-center">
+                <div class="percentage-badge">87%</div>
+                <div class="mt-4 inline-block bg-white bg-opacity-30 px-4 py-2 rounded-full">
+                    <span class="text-sm font-semibold text-gray-800">Precisión</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- YOLO Section -->
+    <div class="glass-card rounded-3xl p-12 hover-lift depth-shadow text-center mb-2">
+        <div class="max-w-3xl mx-auto" style="color: #415E72;">
+            <div class="inline-block detection-badge text-white px-6 py-2 rounded-full mb-6">
+                <span class="text-sm font-bold uppercase tracking-wider">Detección en Tiempo Real</span>
+            </div>
+            
+            <h2 class="text-4xl md:text-5xl font-black mb-4">
+                <span class="gradient-text">YOLO "YOU ONLY LOOK ONCE"</span>
+            </h2>
+            
+            <p class="text-lg text-gray-600 mb-8">Algoritmo de detección de objetos en tiempo real de última generación</p>
+            
+            <div class="grid grid-cols-3 gap-8 mt-12 mb-12">
+                <div class="pulse-animation">
+                    <div class="text-4xl font-black mb-2" style="color: #415E72;">
+                        <svg class="w-10 h-10 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
+                        </svg>
+                    </div>
+                    <div class="text-sm text-gray-600 uppercase tracking-wider">Abecedario</div>
+                </div>
+                <div class="pulse-animation" style="animation-delay: 1s;">
+                    <div class="text-4xl font-black mb-2" style="color: #415E72;">
+                        <svg class="w-10 h-10 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H7l-4 3v-3H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM6 8h12v2H6V8zm0 4h8v2H6v-2z"/>
+                        </svg>
+                    </div>
+                    <div class="text-sm text-gray-600 uppercase tracking-wider">Saludos</div>
+                </div>
+                <div class="pulse-animation" style="animation-delay: 2s;">
+                    <div class="text-4xl font-black mb-2" style="color: #415E72;">
+                        <svg class="w-10 h-10 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10"/>
+                            <circle cx="8.5" cy="9.5" r="1.5" fill="white"/>
+                            <circle cx="15.5" cy="9.5" r="1.5" fill="white"/>
+                            <path d="M8 15c0-2.21 1.79-4 4-4s4 1.79 4 4" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="text-sm text-gray-600 uppercase tracking-wider">Emociones</div>
+                </div>
+            </div>
+            
+            <!-- CTA Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'recognition:index' %}" class="cta-primary px-8 py-4 rounded-2xl text-white font-bold hover-lift depth-shadow relative z-10 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                    Comenzar Reconocimiento
+                </a>
+                
+                <a href="{% url 'challenge:index' %}" class="cta-secondary px-8 py-4 rounded-2xl font-bold hover-lift depth-shadow flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                    </svg>
+                    Ver Desafío
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

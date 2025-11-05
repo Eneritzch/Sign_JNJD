@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Analítica - SignLang AI{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold mb-2">Analítica</h1>
+    <p class="text-gray-600 dark:text-gray-400">Métricas detalladas del desempeño del modelo</p>
+</div>
+
+<!-- KPIs -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md border border-gray-200 dark:border-gray-700">
+        <p class="text-gray-600 dark:text-gray-400 text-sm">Precisión General</p>
+        <p class="text-4xl font-bold text-blue-600 dark:text-blue-400 mt-2">94.2%</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md border border-gray-200 dark:border-gray-700">
+        <p class="text-gray-600 dark:text-gray-400 text-sm">Latencia Promedio</p>
+        <p class="text-4xl font-bold text-purple-600 dark:text-purple-400 mt-2">45ms</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md border border-gray-200 dark:border-gray-700">
+        <p class="text-gray-600 dark:text-gray-400 text-sm">Tasa de Error</p>
+        <p class="text-4xl font-bold text-orange-600 dark:text-orange-400 mt-2">5.8%</p>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-bold mb-4">Precisión por Letra</h2>
+        <canvas id="accuracyChart"></canvas>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-bold mb-4">Distribución</h2>
+        <canvas id="distributionChart"></canvas>
+    </div>
+</div>
+
+<!-- Confusion Matrix -->
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+    <h2 class="text-lg font-bold mb-2">Matriz de Confusión</h2>
+    <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">Análisis de predicciones incorrectas</p>
+    <div id="confusionMatrix" class="inline-grid gap-1" style="grid-template-columns: repeat(5, 1fr);"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Accuracy Chart
+        const accuracyCtx = document.getElementById('accuracyChart');
+        new Chart(accuracyCtx, {
+            type: 'bar',
+            data: {
+                labels: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'],
+                datasets: [{
+                    label: 'Precisión (%)',
+                    data: [96, 92, 94, 89, 95, 91, 93, 97, 90, 94],
+                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 0,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { max: 100, beginAtZero: true } }
+            }
+        });
+
+        // Distribution Chart
+        const distributionCtx = document.getElementById('distributionChart');
+        new Chart(distributionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['A', 'B', 'C', 'D', 'E', 'Others'],
+                datasets: [{
+                    data: [250, 190, 180, 165, 155, 900],
+                    backgroundColor: [
+                        'rgba(59, 130, 246, 0.9)',
+                        'rgba(139, 92, 246, 0.9)',
+                        'rgba(16, 185, 129, 0.9)',
+                        'rgba(245, 158, 11, 0.9)',
+                        'rgba(239, 68, 68, 0.9)',
+                        'rgba(107, 114, 128, 0.3)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        // Confusion Matrix
+        const matrix = document.getElementById('confusionMatrix');
+        const colors = ['rgba(59, 130, 246, 0.2)', 'rgba(59, 130, 246, 0.4)', 'rgba(59, 130, 246, 0.6)', 'rgba(59, 130, 246, 0.8)', 'rgba(59, 130, 246, 1)'];
+        for (let i = 0; i < 25; i++) {
+            const intensity = Math.random();
+            const colorIdx = Math.floor(intensity * colors.length);
+            const cell = document.createElement('div');
+            cell.className = 'w-12 h-12 flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 font-bold text-white text-sm';
+            cell.style.background = colors[colorIdx];
+            cell.textContent = Math.floor(Math.random() * 50);
+            matrix.appendChild(cell);
+        }
+    });
+</script>
+{% endblock %}

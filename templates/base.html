@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SD{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Estilos Unificados -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% block extra_css %}{% endblock %}
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="antialiased">
+    
+    <!-- Grid Pattern Background -->
+    <div class="grid-pattern"></div>
+    
+    <!-- Floating Orbs -->
+    <div class="floating-orb orb-1"></div>
+    <div class="floating-orb orb-2"></div>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <span class="logo-text">SignDetector</span>
+            <button class="close-menu-btn" id="closeMenuBtn">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <nav class="py-4">
+            <a href="{% url 'core:home' %}" class="mobile-nav-item {% if request.resolver_match.app_names.0 == 'core' %}active{% endif %}">
+                <i class="fas fa-home mr-3"></i>INICIO
+            </a>
+            <a href="{% url 'recognition:index' %}" class="mobile-nav-item {% if request.resolver_match.app_names.0 == 'recognition' %}active{% endif %}">
+                <i class="fas fa-video mr-3"></i>RECONOCIMIENTO
+            </a>
+            <a href="{% url 'dashboard:index' %}" class="mobile-nav-item {% if request.resolver_match.app_names.0 == 'dashboard' %}active{% endif %}">
+                <i class="fas fa-chart-line mr-3"></i>ANALÍTICA
+            </a>
+            <a href="{% url 'challenge:index' %}" class="mobile-nav-item {% if request.resolver_match.app_names.0 == 'challenge' %}active{% endif %}">
+                <i class="fas fa-trophy mr-3"></i>RETOS
+            </a>
+        </nav>
+    </div>
+
+    <!-- Header -->
+    <header class="header-bg sticky top-0 z-40">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <a href="{% url 'core:home' %}" class="flex items-center space-x-3 group">
+                    <span class="logo-text">SignDetector</span>
+                </a>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-2 desktop-nav">
+                    <a href="{% url 'core:home' %}" class="nav-item {% if request.resolver_match.app_names.0 == 'core' %}active{% endif %}">
+                        INICIO
+                    </a>
+                    <a href="{% url 'recognition:index' %}" class="nav-item {% if request.resolver_match.app_names.0 == 'recognition' %}active{% endif %}">
+                        RECONOCIMIENTO
+                    </a>
+                    <a href="{% url 'dashboard:index' %}" class="nav-item {% if request.resolver_match.app_names.0 == 'dashboard' %}active{% endif %}">
+                        ANALÍTICA
+                    </a>
+                    <a href="{% url 'challenge:index' %}" class="nav-item {% if request.resolver_match.app_names.0 == 'challenge' %}active{% endif %}">
+                        RETOS
+                    </a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <button class="mobile-menu-btn md:hidden" id="openMenuBtn">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-bg mt-16 py-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
+                <div class="text-center md:text-left">
+                    <p class="footer-title">SignDetector</p>
+                    <p class="footer-subtitle">Sistema de Reconocimiento de Lengua de Señas</p>
+                </div>
+                <div class="text-center md:text-right">
+                    <p class="footer-text font-semibold">© 2025 SignDetector AI</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile menu functionality
+        const openMenuBtn = document.getElementById('openMenuBtn');
+        const closeMenuBtn = document.getElementById('closeMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+
+        function openMobileMenu() {
+            mobileMenu.classList.add('active');
+            mobileOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileMenu() {
+            mobileMenu.classList.remove('active');
+            mobileOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        if (openMenuBtn) {
+            openMenuBtn.addEventListener('click', openMobileMenu);
+        }
+        
+        if (closeMenuBtn) {
+            closeMenuBtn.addEventListener('click', closeMobileMenu);
+        }
+        
+        if (mobileOverlay) {
+            mobileOverlay.addEventListener('click', closeMobileMenu);
+        }
+
+        // Cerrar menú al hacer clic en un link
+        const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+        mobileNavItems.forEach(item => {
+            item.addEventListener('click', closeMobileMenu);
+        });
+
+        // Cerrar menú con tecla ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeMobileMenu();
+            }
+        });
+
+        // Cerrar menú al cambiar de tamaño (cuando se vuelve desktop)
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                closeMobileMenu();
+            }
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
