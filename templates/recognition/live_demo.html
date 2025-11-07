@@ -1,0 +1,488 @@
+{% extends 'base.html' %}
+
+{% block title %}Reconocimiento - SignLang AI{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Header Section -->
+    <header class="text-center mb-12">
+        <h2 class="text-5xl md:text-7xl font-black mb-4 text-gray-900">
+            Detección de <span class="gradient-text">Señas LSM</span>
+        </h2>
+    </header>
+
+    <!-- Main Grid Layout -->
+    <div class="grid lg:grid-cols-3 gap-6 mb-8">
+        <!-- Main Video Section -->
+        <div class="lg:col-span-2">
+            <div class="recognition-card rounded-3xl p-6 shadow-xl">
+                <!-- Video Container -->
+                <div class="relative aspect-video rounded-2xl overflow-hidden border-4 border-gray-800 mb-6 bg-gray-900">
+                    <video id="video" class="w-full h-full object-cover" playsinline autoplay></video>
+                    <canvas id="canvas" class="hidden"></canvas>
+                    
+                    <!-- Camera Overlay -->
+                    <div id="cameraOverlay" class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-900/90 to-blue-900/90 backdrop-blur-sm">
+                        <div class="text-center text-white px-6">
+                            <div class="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-white/30 backdrop-blur-md">
+                                <i class="fas fa-video text-white text-4xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-3">Cámara Desactivada</h3>
+                            <p class="text-white/80 mb-6">Presiona el botón para comenzar la detección</p>
+                            <div class="flex items-center justify-center space-x-2 text-sm text-white/60">
+                                <i class="fas fa-lock"></i>
+                                <span>Tu privacidad está protegida</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recording Indicator -->
+                    <div id="recordingIndicator" class="hidden absolute top-4 right-4 bg-red-600/90 backdrop-blur-md text-white px-4 py-2 rounded-full text-sm font-bold flex items-center space-x-2 shadow-lg">
+                        <span class="w-3 h-3 bg-white rounded-full animate-pulse"></span>
+                        <span>EN VIVO</span>
+                    </div>
+
+                    <!-- Detection Overlay -->
+                    <div id="detectionOverlay" class="hidden absolute bottom-4 left-4 right-4 bg-black/70 backdrop-blur-md text-white p-4 rounded-xl">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-400 mb-1">Última detección</p>
+                                <p id="lastDetection" class="text-2xl font-black">---</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-gray-400 mb-1">Confianza</p>
+                                <p id="confidence" class="text-2xl font-black text-green-400">0%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Control Buttons -->
+                <div class="flex gap-4">
+                    <button id="startCameraBtn" class="flex-1 btn-camera-start text-white font-bold py-4 px-8 rounded-xl flex items-center justify-center space-x-3 transition-all transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-play text-xl"></i>
+                        <span class="text-lg">Iniciar Cámara</span>
+                    </button>
+                    <button id="captureBtn" class="hidden btn-capture w-16 h-16 font-black rounded-xl flex items-center justify-center transition-all transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-camera text-2xl"></i>
+                    </button>
+                    <button id="settingsBtn" class="hidden w-16 h-16 bg-gray-200 hover:bg-gray-300 text-gray-700 font-black rounded-xl flex items-center justify-center transition-all transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-cog text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Section -->
+        <div class="space-y-6">
+            <!-- Stats Cards -->
+            <div class="space-y-3">
+                <div class="stat-mini px-5 py-4 rounded-2xl shadow-md">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-camera text-purple-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Estado</p>
+                                <p class="text-xl font-black text-gray-900" id="cameraStatus">Inactiva</p>
+                            </div>
+                        </div>
+                        <div id="statusIndicator" class="w-3 h-3 bg-gray-400 rounded-full"></div>
+                    </div>
+                </div>
+
+                <div class="stat-mini px-5 py-4 rounded-2xl shadow-md">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-chart-line text-blue-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Detecciones</p>
+                            <p class="text-xl font-black text-gray-900" id="detectionCount">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-mini px-5 py-4 rounded-2xl shadow-md">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-clock text-green-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tiempo Activo</p>
+                            <p class="text-xl font-black text-gray-900" id="activeTime">00:00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions Card -->
+            <div class="instructions-box rounded-2xl p-6 shadow-md">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="icon-box w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-lightbulb text-white text-xl"></i>
+                    </div>
+                    <h3 class="font-black text-gray-900 text-lg">Consejos</h3>
+                </div>
+                <ul class="space-y-3">
+                    <li class="flex items-start space-x-3">
+                        <div class="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fas fa-check text-green-600 text-xs"></i>
+                        </div>
+                        <span class="text-sm text-gray-700 leading-relaxed">Posiciona tu mano frente a la cámara con buena iluminación</span>
+                    </li>
+                    <li class="flex items-start space-x-3">
+                        <div class="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fas fa-check text-green-600 text-xs"></i>
+                        </div>
+                        <span class="text-sm text-gray-700 leading-relaxed">Mantén el fondo despejado y uniforme</span>
+                    </li>
+                    <li class="flex items-start space-x-3">
+                        <div class="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fas fa-check text-green-600 text-xs"></i>
+                        </div>
+                        <span class="text-sm text-gray-700 leading-relaxed">Realiza las señas con movimientos claros y deliberados</span>
+                    </li>
+                    <li class="flex items-start space-x-3">
+                        <div class="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fas fa-check text-green-600 text-xs"></i>
+                        </div>
+                        <span class="text-sm text-gray-700 leading-relaxed">Mantén una distancia de 50-80 cm de la cámara</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915" crossorigin="anonymous"></script>
+
+
+<script>
+    // === Elementos DOM ===
+    const video = document.getElementById('video');
+    const startCameraBtn = document.getElementById('startCameraBtn');
+    const cameraOverlay = document.getElementById('cameraOverlay');
+    const detectionOverlay = document.getElementById('detectionOverlay');
+    const lastDetectionEl = document.getElementById('lastDetection');
+    const confidenceEl = document.getElementById('confidence');
+    const cameraStatus = document.getElementById('cameraStatus');
+    const statusIndicator = document.getElementById('statusIndicator');
+
+    // Canvas overlay para dibujar ROI encima del video
+    const overlayCanvas = document.createElement('canvas');
+    overlayCanvas.className = 'absolute inset-0 w-full h-full pointer-events-none';
+    video.parentElement.appendChild(overlayCanvas);
+    const overlayCtx = overlayCanvas.getContext('2d');
+
+    // === Estado ===
+    let cameraActive = false;
+    let stream = null;
+    let hands = null;
+    let frameBuffer = [];
+    const FRAME_BUFFER_SIZE = 20;
+    let rafId = null; // requestAnimationFrame id para el bucle de envío de frames
+
+    // Estabilización por frames coherentes y cooldown
+    const CONSISTENT_FRAMES = 8; // número de frames iguales para confirmar
+    const COOLDOWN_MS = 700; // tiempo de espera tras confirmar
+    let lastRawClass = null;
+    let stableCount = 0;
+    let lastConfirmed = null;
+    let cooldownUntil = 0;
+
+    // === Inicializar MediaPipe ===
+    function initMediaPipe() {
+        // Validación básica de contexto seguro para cámara
+        if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+            console.warn('La cámara requiere HTTPS o localhost.');
+        }
+
+        // Hands es global en la versión 0.4 del bundle de navegador
+        hands = new Hands({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        });
+        hands.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.7,
+            minTrackingConfidence: 0.7
+        });
+        hands.onResults(processHandFrame);
+    }
+
+    // Redimensionar overlay al tamaño del video
+    function resizeOverlay() {
+        const rect = video.getBoundingClientRect();
+        overlayCanvas.width = rect.width;
+        overlayCanvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeOverlay);
+
+    // === Procesar cada frame con MediaPipe ===
+    async function processHandFrame(results) {
+        if (!cameraActive) return;
+
+        // Limpiar overlay
+        resizeOverlay();
+        overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+
+        // Si no hay manos detectadas, limpiar y terminar
+        if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
+            lastRawClass = null;
+            stableCount = 0;
+            return;
+        }
+
+        // Dibujar bounding box de la mano en overlay
+        const lms = results.multiHandLandmarks[0];
+        let minX = 1, minY = 1, maxX = 0, maxY = 0;
+        for (const lm of lms) {
+            minX = Math.min(minX, lm.x);
+            minY = Math.min(minY, lm.y);
+            maxX = Math.max(maxX, lm.x);
+            maxY = Math.max(maxY, lm.y);
+        }
+        // Bounding box exacto sin margen adicional
+        const bbMinX = Math.max(0, minX);
+        const bbMinY = Math.max(0, minY);
+        const bbMaxX = Math.min(1, maxX);
+        const bbMaxY = Math.min(1, maxY);
+        const bbW = (bbMaxX - bbMinX);
+        const bbH = (bbMaxY - bbMinY);
+
+        // Convertir a coordenadas del canvas overlay
+        const rect = video.getBoundingClientRect();
+        const x = bbMinX * rect.width;
+        const y = bbMinY * rect.height;
+        const w = bbW * rect.width;
+        const h = bbH * rect.height;
+
+        // Dibujo de ROI exacto
+        overlayCtx.strokeStyle = 'rgba(0, 255, 0, 0.9)';
+        overlayCtx.lineWidth = 3;
+        overlayCtx.strokeRect(x, y, w, h);
+
+        // Dibujar landmarks (21 puntos) y conexiones
+        const connections = [
+            [0,1],[1,2],[2,3],[3,4],
+            [0,5],[5,6],[6,7],[7,8],
+            [5,9],[9,10],[10,11],[11,12],
+            [9,13],[13,14],[14,15],[15,16],
+            [13,17],[17,18],[18,19],[19,20],
+            [0,17]
+        ];
+        overlayCtx.strokeStyle = 'rgba(0, 200, 255, 0.9)';
+        overlayCtx.lineWidth = 2;
+        overlayCtx.beginPath();
+        for (const [a,b] of connections) {
+            const ax = lms[a].x * rect.width;
+            const ay = lms[a].y * rect.height;
+            const bx = lms[b].x * rect.width;
+            const by = lms[b].y * rect.height;
+            overlayCtx.moveTo(ax, ay);
+            overlayCtx.lineTo(bx, by);
+        }
+        overlayCtx.stroke();
+        for (const lm of lms) {
+            const px = lm.x * rect.width;
+            const py = lm.y * rect.height;
+            overlayCtx.fillStyle = 'rgba(255, 255, 0, 0.9)';
+            overlayCtx.beginPath();
+            overlayCtx.arc(px, py, 3, 0, Math.PI * 2);
+            overlayCtx.fill();
+        }
+
+        // Extraer recorte desde un canvas base a 224x224 para enviar al backend
+        const baseCanvas = document.createElement('canvas');
+        baseCanvas.width = video.videoWidth || 640;
+        baseCanvas.height = video.videoHeight || 480;
+        const baseCtx = baseCanvas.getContext('2d');
+        baseCtx.drawImage(video, 0, 0, baseCanvas.width, baseCanvas.height);
+
+        // Usar un recorte cuadrado mínimo que cubra la mano (para el modelo 224x224)
+        const size = Math.max(bbW, bbH);
+        const cropCanvas = document.createElement('canvas');
+        cropCanvas.width = 224;
+        cropCanvas.height = 224;
+        const cropCtx = cropCanvas.getContext('2d');
+        cropCtx.drawImage(
+            baseCanvas,
+            bbMinX * baseCanvas.width, bbMinY * baseCanvas.height,
+            size * baseCanvas.width, size * baseCanvas.height,
+            0, 0, 224, 224
+        );
+
+        const blob = await new Promise(resolve => cropCanvas.toBlob(resolve, 'image/jpeg', 0.95));
+
+        // Cooldown para evitar spam
+        const now = performance.now();
+        const underCooldown = now < cooldownUntil;
+
+        // Predicción estática solo si no estamos en cooldown
+        if (!underCooldown) {
+            try {
+                const formData = new FormData();
+                formData.append('frame', blob);
+                const res = await fetch('/recognition/api/predict-static/', { method: 'POST', body: formData });
+                if (res.ok) {
+                    const result = await res.json();
+                    const rawClass = result.class;
+
+                    // Lógica de estabilización por frames coherentes
+                    if (rawClass === lastRawClass) {
+                        stableCount += 1;
+                    } else {
+                        lastRawClass = rawClass;
+                        stableCount = 1;
+                    }
+
+                    // Confirmar detección cuando se acumulan N frames iguales
+                    if (stableCount >= CONSISTENT_FRAMES && rawClass !== lastConfirmed) {
+                        lastConfirmed = rawClass;
+                        cooldownUntil = now + COOLDOWN_MS;
+                        updateUI(`ESTÁTICA: ${rawClass}`, result.confidence);
+                    } else {
+                        // Actualizar confianza en overlay, sin confirmar
+                        confidenceEl.textContent = `${result.confidence}%`;
+                    }
+                } else {
+                    // Reiniciar conteo si falla
+                    lastRawClass = null;
+                    stableCount = 0;
+                }
+            } catch (e) {
+                console.error('Error en predicción estática:', e);
+            }
+        }
+
+        // Acumular para dinámica y enviar por ventana cuando se llene (opcional, mantiene tu endpoint)
+        frameBuffer.push(blob);
+        if (frameBuffer.length > FRAME_BUFFER_SIZE) frameBuffer.shift();
+        if (frameBuffer.length === FRAME_BUFFER_SIZE && !underCooldown) {
+            try {
+                const formData = new FormData();
+                frameBuffer.forEach((b, i) => formData.append(`frame_${i}`, b));
+                const res = await fetch('/recognition/api/predict-dynamic/', { method: 'POST', body: formData });
+                if (res.ok) {
+                    const result = await res.json();
+                    // Confirmar dinámica con misma política de cooldown
+                    lastConfirmed = result.prediction;
+                    cooldownUntil = performance.now() + COOLDOWN_MS;
+                    updateUI(`DINÁMICA: ${result.prediction}`, result.confidence);
+                    frameBuffer = [];
+                }
+            } catch (e) {
+                console.error('Error en predicción dinámica:', e);
+            }
+        }
+    }
+
+    // === Actualizar interfaz ===
+    function updateUI(detection, confidence) {
+        lastDetectionEl.textContent = detection;
+        confidenceEl.textContent = `${confidence}%`;
+    }
+
+    // === Iniciar cámara ===
+    async function startCamera() {
+        try {
+            // Intento 1: constraints recomendadas con valores ideales
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'user',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                });
+            } catch (e1) {
+                console.warn('Fallo con constraints ideales, probando video:true', e1);
+                // Intento 2: constraints mínimas
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            }
+
+            video.srcObject = stream;
+
+            // Esperar metadatos del video
+            await new Promise((resolve) => {
+                if (video.readyState >= 2) return resolve();
+                video.onloadedmetadata = () => resolve();
+            });
+
+            cameraActive = true;
+            initMediaPipe();
+
+            // Enviar frames a MediaPipe con requestAnimationFrame (sin camera_utils)
+            const sendFrame = async () => {
+                if (!cameraActive || !hands) return;
+                try {
+                    await hands.send({ image: video });
+                } catch (e) {
+                    console.error('Error al enviar frame a MediaPipe:', e);
+                }
+                rafId = requestAnimationFrame(sendFrame);
+            };
+            sendFrame();
+
+            // Actualizar UI
+            cameraOverlay.classList.add('hidden');
+            detectionOverlay.classList.remove('hidden');
+            cameraStatus.textContent = 'Activa';
+            statusIndicator.className = 'w-3 h-3 bg-green-500 rounded-full animate-pulse';
+            startCameraBtn.innerHTML = '<i class="fas fa-stop"></i><span>Detener Cámara</span>';
+
+        } catch (err) {
+            console.error('getUserMedia error:', err && err.name, err);
+            if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) {
+                alert('Permite el acceso a la cámara en el navegador y recarga la página.');
+            } else if (err && err.name === 'NotReadableError') {
+                alert('La cámara parece estar en uso por otra aplicación. Ciérrala y vuelve a intentar.');
+            } else if (err && err.name === 'OverconstrainedError') {
+                alert('La cámara no soporta las restricciones solicitadas. Se intentó un fallback.');
+            } else if (err && err.name === 'NotFoundError') {
+                alert('No se encontró un dispositivo de cámara disponible.');
+            } else {
+                alert('No se pudo acceder a la cámara: ' + (err && err.message ? err.message : 'Error desconocido'));
+            }
+        }
+    }
+
+    // === Detener cámara ===
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+        cameraActive = false;
+        frameBuffer = [];
+        // Detener el bucle de envío de frames
+        if (typeof rafId === 'number') {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+        }
+        cameraOverlay.classList.remove('hidden');
+        detectionOverlay.classList.add('hidden');
+        cameraStatus.textContent = 'Inactiva';
+        statusIndicator.className = 'w-3 h-3 bg-gray-400 rounded-full';
+        startCameraBtn.innerHTML = '<i class="fas fa-play"></i><span>Iniciar Cámara</span>';
+        lastDetectionEl.textContent = '---';
+        confidenceEl.textContent = '0%';
+        lastRawClass = null;
+        stableCount = 0;
+        lastConfirmed = null;
+        cooldownUntil = 0;
+    }
+
+    // === Evento del botón ===
+    startCameraBtn.addEventListener('click', () => {
+        if (cameraActive) {
+            stopCamera();
+        } else {
+            startCamera();
+        }
+    });
+</script>
+{% endblock %}

@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'django_extensions',
+
     # Apps del proyecto
     'apps.recognition',
     'apps.dashboard',

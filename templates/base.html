@@ -38,7 +38,7 @@
             <a href="{% url 'core:home' %}" class="mobile-nav-item {% if request.resolver_match.app_names.0 == 'core' %}active{% endif %}">
                 <i class="fas fa-home mr-3"></i>INICIO
             </a>
-            <a href="{% url 'recognition:index' %}" class="mobile-nav-item {% if request.resolver_match.app_names.0 == 'recognition' %}active{% endif %}">
+            <a href="{% url 'recognition:live_demo' %}" class="mobile-nav-item {% if request.resolver_match.app_names.0 == 'recognition' %}active{% endif %}">
                 <i class="fas fa-video mr-3"></i>RECONOCIMIENTO
             </a>
             <a href="{% url 'dashboard:index' %}" class="mobile-nav-item {% if request.resolver_match.app_names.0 == 'dashboard' %}active{% endif %}">
@@ -64,7 +64,7 @@
                     <a href="{% url 'core:home' %}" class="nav-item {% if request.resolver_match.app_names.0 == 'core' %}active{% endif %}">
                         INICIO
                     </a>
-                    <a href="{% url 'recognition:index' %}" class="nav-item {% if request.resolver_match.app_names.0 == 'recognition' %}active{% endif %}">
+                    <a href="{% url 'recognition:live_demo' %}" class="nav-item {% if request.resolver_match.app_names.0 == 'recognition' %}active{% endif %}">
                         RECONOCIMIENTO
                     </a>
                     <a href="{% url 'dashboard:index' %}" class="nav-item {% if request.resolver_match.app_names.0 == 'dashboard' %}active{% endif %}">
