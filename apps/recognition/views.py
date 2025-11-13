@@ -1,14 +1,16 @@
 import os
 import numpy as np
 import cv2
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 import tensorflow as tf
 import base64
+import requests
 from datetime import datetime
 import json
+from apps.dashboard.views import save_recognition_stat
 
 # ============================================================================
 # CONFIGURACIÓN BÁSICA
@@ -87,6 +89,30 @@ def preparar_imagen(img):
     
     return img
 
+# ============================================================================
+# FUNCIÓN AUXILIAR PARA GUARDAR ESTADÍSTICAS
+# ============================================================================
+def _save_usage_stat(request: HttpRequest, model_type: str, predicted_class: str, confidence: float):
+    """Guarda la estadística de uso llamando directamente a la función del dashboard."""
+    try:
+        # Crear un mock request para la función save_recognition_stat
+        from django.http import HttpRequest as MockRequest
+        mock_request = MockRequest()
+        mock_request.method = 'POST'
+        mock_request.POST = {
+            'model_type': model_type,
+            'predicted_class': predicted_class,
+            'confidence': str(confidence)
+        }
+
+        # Llamar directamente a la función del dashboard
+        response = save_recognition_stat(mock_request)
+        if response.status_code == 200:
+            print(f"Usage stat saved: {model_type} - {predicted_class} ({confidence:.2f}%)")
+        else:
+            print(f"Failed to save usage stat: {response.content}")
+    except Exception as e:
+        print(f"Could not save usage stat: {e}")
 # ============================================================================
 # ENDPOINT: RECONOCER SEÑA DESDE FOTO CAPTURADA
 # ============================================================================
@@ -173,6 +199,9 @@ def recognize_from_photo(request):
             'top3': top3,
             'message': f'Letra detectada: {letra_detectada} con {confianza:.1f}% de confianza'
         }
+        
+        # Guardar estadística de uso de forma asíncrona
+        _save_usage_stat(request, 'static', letra_detectada, confianza)
         
         return JsonResponse(response_data)
     
@@ -372,6 +401,9 @@ def recognize_dynamic(request):
             for i in top3_indices
         ]
         
+        # Guardar estadística de uso
+        _save_usage_stat(request, 'dynamic', seña_detectada, confianza)
+        
         return JsonResponse({
             'status': 'success',
             'class': seña_detectada,
@@ -384,7 +416,7 @@ def recognize_dynamic(request):
             },
             'message': f'Seña detectada: {seña_detectada} ({confianza:.1f}%)'
         })
-    
+        
     except Exception as e:
         print(f"Error en reconocimiento dinámico: {e}")
         import traceback

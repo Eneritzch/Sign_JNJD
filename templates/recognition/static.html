@@ -525,6 +525,9 @@
                 document.getElementById('detectedLetter').textContent = result.class;
                 document.getElementById('mainConfidence').textContent = `${result.confidence}%`;
 
+                // Guardar estadística
+                saveRecognitionStat('static', result.class, result.confidence);
+
                 // Top 3
                 const top3Container = document.getElementById('top3Container');
                 top3Container.innerHTML = result.top3.map((item, idx) => `
@@ -579,6 +582,24 @@
     captureBtn.addEventListener('click', capturePhoto);
     recognizeBtn.addEventListener('click', recognizeSign);
     restartBtn.addEventListener('click', restart);
+
+    // Función para guardar estadística
+    async function saveRecognitionStat(modelType, predictedClass, confidence) {
+        try {
+            const formData = new FormData();
+            formData.append('model_type', modelType);
+            formData.append('predicted_class', predictedClass);
+            formData.append('confidence', confidence / 100); // Normalizar a 0-1
+            
+            await fetch("{% url 'dashboard:analytics' %}", {
+                method: 'POST',
+                body: formData
+            });
+        } catch (error) {
+            console.error('Error guardando estadística:', error);
+        }
+    }
+
 </script>
 
 {% endblock %}

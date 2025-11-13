@@ -11,7 +11,6 @@ urlpatterns = [
     path('', include('apps.core.urls')), 
     path('recognition/', include('apps.recognition.urls')),
     path('dashboard/', include('apps.dashboard.urls')),
-    path('challenge/', include('apps.challenge.urls')),
 ]
 
 # Agregar esto al final (fuera de urlpatterns)

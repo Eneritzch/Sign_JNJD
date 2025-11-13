@@ -559,6 +559,9 @@
                 document.getElementById('detectedWord').textContent = result.class;
                 document.getElementById('mainConfidence').textContent = `${result.confidence}%`;
 
+                // Guardar estadística
+                saveRecognitionStat('dynamic', result.class, result.confidence);
+
                 const top3Container = document.getElementById('top3Container');
                 top3Container.innerHTML = result.top3.map((item, idx) => `
                     <div class="prediction-item ${idx === 0 ? 'first-place' : ''}">
@@ -627,6 +630,24 @@
         durationValue.textContent = `${recordingDuration.toFixed(1)}s`;
         durationDisplay.textContent = recordingDuration.toFixed(1);
     });
+
+    // Función para guardar estadística
+    async function saveRecognitionStat(modelType, predictedClass, confidence) {
+        try {
+            const formData = new FormData();
+            formData.append('model_type', modelType);
+            formData.append('predicted_class', predictedClass);
+            formData.append('confidence', confidence / 100); // Normalizar a 0-1
+            
+            await fetch("{% url 'dashboard:analytics' %}", {
+                method: 'POST',
+                body: formData
+            });
+        } catch (error) {
+            console.error('Error guardando estadística:', error);
+        }
+    }
+
 </script>
 
 {% endblock %}

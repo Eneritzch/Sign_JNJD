@@ -44,7 +44,7 @@
             <a href="{% url 'recognition:dynamic' %}" class="mobile-nav-item {% if request.resolver_match.url_name == 'dynamic' %}active{% endif %}">
                 <i class="fas fa-trophy mr-3"></i>RECONOCIMIENTO DINÁMICO
             </a>
-            <a href="{% url 'dashboard:index' %}" class="mobile-nav-item {% if request.resolver_match.app_names.0 == 'dashboard' %}active{% endif %}">
+            <a href="{% url 'dashboard:analytics' %}" class="mobile-nav-item {% if request.resolver_match.app_names.0 == 'dashboard' %}active{% endif %}">
                 <i class="fas fa-chart-line mr-3"></i>ANALÍTICA
             </a>
         </nav>
@@ -70,7 +70,7 @@
                     <a href="{% url 'recognition:dynamic' %}" class="nav-item {% if request.resolver_match.url_name == 'dynamic' %}active{% endif %}">
                         RECONOCIMIENTO DINÁMICO
                     </a>
-                    <a href="{% url 'dashboard:index' %}" class="nav-item {% if request.resolver_match.app_names.0 == 'dashboard' %}active{% endif %}">
+                    <a href="{% url 'dashboard:analytics' %}" class="nav-item {% if request.resolver_match.app_names.0 == 'dashboard' %}active{% endif %}">
                         ANALÍTICA
                     </a>
                 </div>

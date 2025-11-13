@@ -56,7 +56,6 @@ INSTALLED_APPS = [
     # Apps del proyecto
     'apps.recognition',
     'apps.dashboard',
-    'apps.challenge',
     'apps.core',
 ]
 
