@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto p-4">
+  <h1 class="text-2xl font-bold mb-4 text-center">📊 Rendimiento de Detección</h1>
+  {% if tabla %}
+  <table class="min-w-full border-collapse border text-center">
+    <thead>
+      <tr class="bg-purple-100">
+        <th class="p-3 border">Letra</th>
+        <th class="p-3 border">Detecciones</th>
+        <th class="p-3 border">Confianza Promedio (%)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in tabla %}
+      <tr class="hover:bg-purple-50">
+        <td class="border p-2 font-bold">{{ row.letra }}</td>
+        <td class="border p-2">{{ row.detecciones }}</td>
+        <td class="border p-2">{{ row.confianza_promedio|floatformat:2 }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="text-center text-gray-500">Aún no hay datos registrados.</p>
+  {% endif %}
+</div>
+{% endblock %}
