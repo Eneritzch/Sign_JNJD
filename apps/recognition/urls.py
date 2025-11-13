@@ -5,8 +5,13 @@ app_name = 'recognition'
 
 urlpatterns = [
     # Página principal de la demo
-    path('demo/', views.live_demo, name='live_demo'),
+    path('demo/', views.static, name='static'),
     
-    path('recognize/', views.recognize_from_photo, name='recognize_photo'),
-    path('stats/', views.get_saved_photos_stats, name='photo_stats'), 
+    # Reconocimiento estático 
+    path('static/', views.static, name='static'),
+    path('recognize-photo/', views.recognize_from_photo, name='recognize_photo'),
+    
+    # Reconocimiento dinámico 
+    path('dynamic/', views.dynamic, name='dynamic'),
+    path('recognize-dynamic/', views.recognize_dynamic, name='recognize_dynamic'),
 ]

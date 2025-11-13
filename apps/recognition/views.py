@@ -8,14 +8,16 @@ from django.views.decorators.http import require_http_methods
 import tensorflow as tf
 import base64
 from datetime import datetime
+import json
 
 # ============================================================================
 # CONFIGURACIÓN BÁSICA
 # ============================================================================
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 MODEL_PATH = os.path.join(PROJECT_ROOT, 'models', 'mobilenetv2_static_ft.h5')
+DYNAMIC_MODEL_PATH = os.path.join(PROJECT_ROOT, 'models', 'cnn_bigru_dynamic.h5')
 
-# Las fotos NO se guardan en disco - solo procesamiento en memoria
+# PARA HTML DE STATIC
 
 # ============================================================================
 # CARGAR MODELO UNA SOLA VEZ
@@ -32,9 +34,9 @@ try:
         try:
             for gpu in gpus:
                 tf.config.experimental.set_memory_growth(gpu, True)
-            print("✅ GPU configurada")
+            print("GPU configurada")
         except RuntimeError as e:
-            print(f"⚠️ GPU warning: {e}")
+            print(f"GPU warning: {e}")
     
     # Cargar modelo
     static_model = tf.keras.models.load_model(MODEL_PATH, compile=False)
@@ -44,9 +46,9 @@ try:
     dummy = np.zeros((1, 224, 224, 3), dtype=np.float32)
     static_model.predict(dummy, verbose=0)
     
-    print("✅ Modelo cargado exitosamente")
+    print("Modelo cargado exitosamente")
 except Exception as e:
-    print(f"❌ Error al cargar modelo: {e}")
+    print(f"Error al cargar modelo: {e}")
 
 # Etiquetas del modelo
 STATIC_LABELS = [
@@ -84,25 +86,6 @@ def preparar_imagen(img):
     img = (img / 127.5) - 1.0
     
     return img
-
-# ============================================================================
-# GUARDAR FOTO (OPCIONAL)
-# ============================================================================
-def guardar_foto_capturada(img_array, letra_detectada, confianza):
-    """
-    Guarda la foto capturada en disco para análisis posterior.
-    Nombre: YYYY-MM-DD_HH-MM-SS_LETRA_CONFIANZA.jpg
-    """
-    try:
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        filename = f"{timestamp}_{letra_detectada}_{confianza:.1f}.jpg"
-        filepath = os.path.join(PHOTOS_DIR, filename)
-        
-        cv2.imwrite(filepath, img_array)
-        return filename
-    except Exception as e:
-        print(f"⚠️ Error guardando foto: {e}")
-        return None
 
 # ============================================================================
 # ENDPOINT: RECONOCER SEÑA DESDE FOTO CAPTURADA
@@ -182,11 +165,6 @@ def recognize_from_photo(request):
             for i in top3_indices
         ]
         
-        # Guardar foto si se solicitó
-        saved_filename = None
-        if save_photo:
-            saved_filename = guardar_foto_capturada(img, letra_detectada, confianza)
-        
         # Retornar resultado
         response_data = {
             'status': 'success',
@@ -196,84 +174,234 @@ def recognize_from_photo(request):
             'message': f'Letra detectada: {letra_detectada} con {confianza:.1f}% de confianza'
         }
         
-        if saved_filename:
-            response_data['saved_as'] = saved_filename
-        
         return JsonResponse(response_data)
     
     except Exception as e:
-        print(f"❌ Error en reconocimiento: {e}")
+        print(f"Error en reconocimiento: {e}")
         return JsonResponse({
             'error': str(e),
             'status': 'error'
         }, status=500)
 
 # ============================================================================
-# VISTA PRINCIPAL
+# VISTA ESTÁTICA
 # ============================================================================
-def live_demo(request):
+def static(request):
     """Renderiza la página de captura y reconocimiento"""
-    return render(request, 'recognition/live_demo.html')
+    return render(request, 'recognition/static.html')
+
+
+
 
 # ============================================================================
-# ENDPOINT: OBTENER ESTADÍSTICAS DE FOTOS GUARDADAS
+# PARA HTML DE DYNAMIC
+# ============================================================================
+
+NUM_FRAMES = 20  # Número de frames que espera tu modelo
+IMG_SIZE = (224, 224)  # Tamaño de cada frame
+
+# Tus clases (ajusta según tus carpetas de entrenamiento)
+LABELS_DYNAMIC = ["hola","adios","chao","bienvenido","buenos_dias","buenas_tardes","buenas_noches",
+                    "gracias","por_favor","mucho_gusto","como_estas","feliz","triste","enojado",
+                    "sorprendido","cansado","malo","bueno","nombre","familia","j","z"]
+
+# ============================================================================
+# CARGAR MODELO DINÁMICO
+# ============================================================================
+dynamic_model = None
+try:
+    # Configurar TensorFlow
+    tf.config.threading.set_inter_op_parallelism_threads(2)
+    tf.config.threading.set_intra_op_parallelism_threads(2)
+    
+    gpus = tf.config.list_physical_devices('GPU')
+    if gpus:
+        try:
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
+        except RuntimeError as e:
+            print(f"⚠️ GPU warning: {e}")
+    
+    dynamic_model = tf.keras.models.load_model(DYNAMIC_MODEL_PATH, compile=False)
+    dynamic_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    
+    # Warm-up prediction
+    dummy = np.zeros((1, NUM_FRAMES, *IMG_SIZE, 3), dtype=np.float32)
+    dynamic_model.predict(dummy, verbose=0)
+    
+    print(f"Modelo dinámico cargado - Input shape: {dynamic_model.input_shape}")
+except Exception as e:
+    print(f"Error cargando modelo dinámico: {e}")
+
+# ============================================================================
+# PREPROCESAMIENTO 
+# ============================================================================
+def efficientnet_preprocess(frame):
+    """
+    Preprocesamiento idéntico al de EfficientNetB0:
+    - Redimensiona a 224x224
+    - Aplica preprocess_input de EfficientNet (normalización específica)
+    """
+    # Redimensionar
+    frame = cv2.resize(frame, IMG_SIZE, interpolation=cv2.INTER_AREA)
+    
+    # Convertir a float32
+    frame = frame.astype(np.float32)
+    
+    # Aplicar el mismo preprocesamiento que EfficientNetB0
+    # Rango: [0, 255] -> normalización específica de EfficientNet
+    # Fórmula: (x - mean) / std donde mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375]
+    frame[..., 0] -= 123.675
+    frame[..., 1] -= 116.28
+    frame[..., 2] -= 103.53
+    
+    frame[..., 0] /= 58.395
+    frame[..., 1] /= 57.12
+    frame[..., 2] /= 57.375
+    
+    return frame
+
+def procesar_secuencia_dinamica(frames_base64):
+
+    frames_decodificados = []
+    
+    # Decodificar todos los frames
+    for frame_b64 in frames_base64:
+        try:
+            if ',' in frame_b64:
+                frame_b64 = frame_b64.split(',')[1]
+            
+            image_bytes = base64.b64decode(frame_b64)
+            nparr = np.frombuffer(image_bytes, np.uint8)
+            img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            
+            if img is not None:
+                # BGR a RGB (importante!)
+                img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                frames_decodificados.append(img_rgb)
+        except Exception as e:
+            print(f"Error decodificando frame: {e}")
+            continue
+    
+    if len(frames_decodificados) == 0:
+        raise ValueError("No se pudo decodificar ningún frame")
+    
+    total_frames = len(frames_decodificados)
+    
+    # Sampling uniforme para obtener exactamente NUM_FRAMES
+    if total_frames != NUM_FRAMES:
+        indices = np.linspace(0, total_frames - 1, NUM_FRAMES, dtype=int)
+        frames_decodificados = [frames_decodificados[i] for i in indices]
+    
+    # Preprocesar cada frame
+    frames_procesados = []
+    for frame in frames_decodificados:
+        frame_prep = efficientnet_preprocess(frame)
+        frames_procesados.append(frame_prep)
+    
+    return np.array(frames_procesados, dtype=np.float32)
+
+# ============================================================================
+# ENDPOINT: RECONOCER SEÑA DINÁMICA
 # ============================================================================
 @csrf_exempt
-@require_http_methods(["GET"])
-def get_saved_photos_stats(request):
+@require_http_methods(["POST"])
+def recognize_dynamic(request):
     """
-    Retorna estadísticas de las fotos guardadas:
-    - Total de fotos
-    - Letras más capturadas
-    - Confianza promedio por letra
+    Recibe secuencia de frames y predice con CNN+BiGRU.
+    
+    Parámetros:
+    - frames: JSON array de base64 strings
+    
+    Retorna:
+    - class: Seña detectada
+    - confidence: Confianza %
+    - top3: Top 3 predicciones
+    - frames_info: Info de procesamiento
     """
+    if not dynamic_model:
+        return JsonResponse({
+            'error': 'Modelo dinámico no disponible',
+            'status': 'error'
+        }, status=500)
+    
     try:
-        import glob
-        
-        photos = glob.glob(os.path.join(PHOTOS_DIR, "*.jpg"))
-        
-        if not photos:
+        # Obtener frames
+        frames_json = request.POST.get('frames')
+        if not frames_json:
             return JsonResponse({
-                'total_photos': 0,
-                'message': 'No hay fotos guardadas aún'
-            })
+                'error': 'No se enviaron frames',
+                'status': 'error'
+            }, status=400)
         
-        # Analizar nombres de archivo
-        stats = {}
-        for photo in photos:
-            basename = os.path.basename(photo)
-            parts = basename.split('_')
-            
-            if len(parts) >= 4:
-                letra = parts[2]
-                conf = float(parts[3].replace('.jpg', ''))
-                
-                if letra not in stats:
-                    stats[letra] = {
-                        'count': 0,
-                        'confidences': []
-                    }
-                
-                stats[letra]['count'] += 1
-                stats[letra]['confidences'].append(conf)
+        frames_list = json.loads(frames_json)
         
-        # Calcular promedios
-        result = {}
-        for letra, data in stats.items():
-            result[letra] = {
-                'count': data['count'],
-                'avg_confidence': round(sum(data['confidences']) / len(data['confidences']), 2),
-                'min_confidence': round(min(data['confidences']), 2),
-                'max_confidence': round(max(data['confidences']), 2)
+        if len(frames_list) == 0:
+            return JsonResponse({
+                'error': 'Lista de frames vacía',
+                'status': 'error'
+            }, status=400)
+        
+        frames_recibidos = len(frames_list)
+        print(f"Frames recibidos: {frames_recibidos}")
+        
+        # Procesar secuencia
+        secuencia = procesar_secuencia_dinamica(frames_list)
+        print(f"Secuencia procesada: {secuencia.shape}")
+        
+        # Agregar batch dimension: (1, 20, 224, 224, 3)
+        secuencia_batch = np.expand_dims(secuencia, axis=0)
+        
+        # Predecir
+        predicciones = dynamic_model.predict(secuencia_batch, verbose=0)[0]
+        
+        # Resultado principal
+        clase_id = int(np.argmax(predicciones))
+        confianza = float(predicciones[clase_id]) * 100
+        seña_detectada = LABELS_DYNAMIC[clase_id]
+        
+        print(f"Predicción: {seña_detectada} ({confianza:.2f}%)")
+        
+        # Top 3
+        top3_indices = np.argsort(predicciones)[-3:][::-1]
+        top3 = [
+            {
+                'seña': LABELS_DYNAMIC[i],
+                'confianza': round(float(predicciones[i]) * 100, 2)
             }
+            for i in top3_indices
+        ]
         
         return JsonResponse({
-            'total_photos': len(photos),
-            'letters': result,
-            'photos_directory': PHOTOS_DIR
+            'status': 'success',
+            'class': seña_detectada,
+            'confidence': round(confianza, 2),
+            'top3': top3,
+            'frames_info': {
+                'received': frames_recibidos,
+                'used': NUM_FRAMES,
+                'sampling': 'uniform' if frames_recibidos != NUM_FRAMES else 'none'
+            },
+            'message': f'Seña detectada: {seña_detectada} ({confianza:.1f}%)'
         })
     
     except Exception as e:
+        print(f"Error en reconocimiento dinámico: {e}")
+        import traceback
+        traceback.print_exc()
         return JsonResponse({
-            'error': str(e)
+            'error': str(e),
+            'status': 'error'
         }, status=500)
+
+# ============================================================================
+# VISTA DINÁMICO
+# ============================================================================
+def dynamic(request):
+    """Renderiza página de reconocimiento dinámico"""
+    context = {
+        'num_frames': NUM_FRAMES,
+        'labels': LABELS_DYNAMIC,
+        'model_loaded': dynamic_model is not None
+    }
+    return render(request, 'recognition/dynamic.html', context)

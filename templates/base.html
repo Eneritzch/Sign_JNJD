@@ -38,14 +38,14 @@
             <a href="{% url 'core:home' %}" class="mobile-nav-item {% if request.resolver_match.app_names.0 == 'core' %}active{% endif %}">
                 <i class="fas fa-home mr-3"></i>INICIO
             </a>
-            <a href="{% url 'recognition:live_demo' %}" class="mobile-nav-item {% if request.resolver_match.app_names.0 == 'recognition' %}active{% endif %}">
-                <i class="fas fa-video mr-3"></i>RECONOCIMIENTO
+            <a href="{% url 'recognition:static' %}" class="mobile-nav-item {% if request.resolver_match.url_name == 'static' %}active{% endif %}">
+                <i class="fas fa-video mr-3"></i>RECONOCIMIENTO ESTÁTICO
+            </a>
+            <a href="{% url 'recognition:dynamic' %}" class="mobile-nav-item {% if request.resolver_match.url_name == 'dynamic' %}active{% endif %}">
+                <i class="fas fa-trophy mr-3"></i>RECONOCIMIENTO DINÁMICO
             </a>
             <a href="{% url 'dashboard:index' %}" class="mobile-nav-item {% if request.resolver_match.app_names.0 == 'dashboard' %}active{% endif %}">
                 <i class="fas fa-chart-line mr-3"></i>ANALÍTICA
-            </a>
-            <a href="{% url 'challenge:index' %}" class="mobile-nav-item {% if request.resolver_match.app_names.0 == 'challenge' %}active{% endif %}">
-                <i class="fas fa-trophy mr-3"></i>RETOS
             </a>
         </nav>
     </div>
@@ -64,14 +64,14 @@
                     <a href="{% url 'core:home' %}" class="nav-item {% if request.resolver_match.app_names.0 == 'core' %}active{% endif %}">
                         INICIO
                     </a>
-                    <a href="{% url 'recognition:live_demo' %}" class="nav-item {% if request.resolver_match.app_names.0 == 'recognition' %}active{% endif %}">
-                        RECONOCIMIENTO
+                    <a href="{% url 'recognition:static' %}" class="nav-item {% if request.resolver_match.url_name == 'static' %}active{% endif %}">
+                        RECONOCIMIENTO ESTÁTICO
+                    </a>
+                    <a href="{% url 'recognition:dynamic' %}" class="nav-item {% if request.resolver_match.url_name == 'dynamic' %}active{% endif %}">
+                        RECONOCIMIENTO DINÁMICO
                     </a>
                     <a href="{% url 'dashboard:index' %}" class="nav-item {% if request.resolver_match.app_names.0 == 'dashboard' %}active{% endif %}">
                         ANALÍTICA
-                    </a>
-                    <a href="{% url 'challenge:index' %}" class="nav-item {% if request.resolver_match.app_names.0 == 'challenge' %}active{% endif %}">
-                        RETOS
                     </a>
                 </div>
 

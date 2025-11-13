@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Reconocimiento por Foto - SignLang AI{% endblock %}
+{% block title %}Reconocimiento Dinámico - SignLang AI{% endblock %}
 
 {% block content %}
 
-<!-- Background Elements -->
+<!-- Background Elements (igual que static.html) -->
 <div class="gradient-bg"></div>
 <div class="fixed inset-0 pointer-events-none overflow-hidden" style="z-index: 0;">
     <div class="orb orb-1"></div>
@@ -17,55 +17,60 @@
     <!-- Header -->
     <header class="text-center mb-12">
         <h2 class="text-5xl md:text-7xl font-black mb-4 text-gray-900">
-            Captura tu <span class="gradient-text">Seña LSM</span>
+            Reconocimiento <span class="gradient-text">Dinámico LSM</span>
         </h2>
         <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-            Sistema optimizado: captura una foto de tu seña y obtén el resultado al instante
+            Realiza una seña en movimiento y detecta palabras completas con CNN+BiGRU
         </p>
     </header>
 
     <div class="grid lg:grid-cols-3 gap-6">
-        <!-- Panel Principal: Cámara/Foto -->
+        <!-- Panel Principal: Video -->
         <div class="lg:col-span-2">
             <div class="recognition-card">
-                <!-- Contenedor de Video/Foto -->
+                <!-- Contenedor de Video -->
                 <div class="video-container aspect-video mb-6">
                     <!-- Video en vivo -->
                     <video id="video" class="w-full h-full object-cover" playsinline autoplay></video>
                     
-                    <!-- Canvas para dibujar detección de manos -->
+                    <!-- Canvas para detección de manos -->
                     <canvas id="handCanvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
                     
-                    <!-- Canvas oculto para captura -->
-                    <canvas id="captureCanvas" class="hidden"></canvas>
-                    
-                    <!-- Overlay cuando cámara está apagada -->
+                    <!-- Overlay cuando cámara apagada -->
                     <div id="cameraOverlay" class="absolute inset-0 flex items-center justify-center">
                         <div class="text-center text-white px-6">
                             <div class="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-white/30">
-                                <i class="fas fa-camera text-white text-4xl"></i>
+                                <i class="fas fa-video text-white text-4xl"></i>
                             </div>
                             <h3 class="text-2xl font-bold mb-3">Cámara Desactivada</h3>
-                            <p class="text-white/80 mb-6">Inicia la cámara para comenzar</p>
+                            <p class="text-white/80 mb-6">Inicia para comenzar grabación de señas</p>
                         </div>
                     </div>
 
-                    <!-- Indicador de mano detectada - Mejorado -->
-                    <div id="handDetected" class="hidden absolute top-4 right-4 hand-detected-badge">
+                    <!-- Indicador de grabación -->
+                    <div id="recordingIndicator" class="hidden absolute top-4 left-4">
+                        <div class="flex items-center space-x-2 bg-red-500 text-white px-4 py-2 rounded-full shadow-lg" style="animation: pulse 1.5s ease-in-out infinite;">
+                            <div class="w-3 h-3 bg-white rounded-full"></div>
+                            <span class="font-bold">GRABANDO</span>
+                            <span id="recordingTimer">0.0s</span>
+                        </div>
+                    </div>
+
+                    <!-- Contador de frames -->
+                    <div class="absolute top-4 right-4 detection-badge flex items-center space-x-2">
+                        <i class="fas fa-film"></i>
+                        <span id="frameCount">0 frames</span>
+                    </div>
+
+                    <!-- Indicador de mano detectada -->
+                    <div id="handDetected" class="hidden absolute bottom-4 right-4 hand-detected-badge">
                         <span class="pulse-dot"></span>
                         <span>MANO DETECTADA</span>
                     </div>
 
-                    <!-- Contador de fotos -->
-                    <div class="absolute top-4 left-4 detection-badge flex items-center space-x-2">
-                        <i class="fas fa-camera"></i>
-                        <span id="photoCount">0 fotos</span>
-                    </div>
-
-                    <!-- Indicador de zoom activo -->
-                    <div id="zoomIndicator" class="hidden absolute bottom-4 left-4 zoom-indicator">
-                        <i class="fas fa-search-plus"></i>
-                        <span>Zoom: Solo Mano</span>
+                    <!-- Barra de progreso durante grabación -->
+                    <div id="recordingProgress" class="hidden absolute bottom-0 left-0 right-0 h-2 bg-white/20">
+                        <div id="progressBar" class="h-full bg-gradient-to-r from-green-400 to-blue-500 transition-all" style="width: 0%;"></div>
                     </div>
                 </div>
 
@@ -77,50 +82,72 @@
                         <span class="text-lg">Iniciar Cámara</span>
                     </button>
 
-                    <!-- Botón Capturar (solo visible cuando cámara está activa) -->
-                    <button id="captureBtn" class="hidden w-full btn-capture-photo flex items-center justify-center space-x-3 transition-all transform hover:scale-105">
-                        <i class="fas fa-camera text-xl"></i>
-                        <span class="text-lg">Capturar Foto de Mano</span>
+                    <!-- Botón Grabar Seña (oculto hasta que cámara esté activa) -->
+                    <button id="recordBtn" class="hidden w-full bg-gradient-to-r from-red-500 to-pink-600 text-white font-bold py-4 px-8 rounded-xl flex items-center justify-center space-x-3 transition-all transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-circle text-xl"></i>
+                        <span class="text-lg">Grabar Seña (<span id="durationDisplay">3.0</span>s)</span>
                     </button>
+
+                    <!-- Control de duración -->
+                    <div id="durationControl" class="hidden recognition-card">
+                        <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center space-x-2">
+                            <i class="fas fa-clock text-purple-600"></i>
+                            <span>Duración de Grabación</span>
+                        </label>
+                        <div class="flex items-center space-x-4">
+                            <input type="range" id="durationSlider" min="1.5" max="5" value="3" step="0.5" class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" style="accent-color: #8b5cf6;">
+                            <span id="durationValue" class="text-2xl font-black text-purple-600">3.0s</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">
+                            <i class="fas fa-info-circle"></i> 
+                            El modelo usa <strong>{{ num_frames }} frames</strong> uniformemente distribuidos
+                        </p>
+                    </div>
                 </div>
 
-                <!-- Panel de foto capturada (oculto inicialmente) -->
-                <div id="photoPanel" class="hidden space-y-4 mt-6">
+                <!-- Panel de video grabado -->
+                <div id="videoPanel" class="hidden space-y-4 mt-6">
                     <div class="recognition-card">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="font-bold text-gray-800 text-lg flex items-center space-x-2">
                                 <div class="icon-box w-10 h-10 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-image text-white"></i>
+                                    <i class="fas fa-film text-white"></i>
                                 </div>
-                                <span>Foto Capturada (Solo Mano)</span>
+                                <span>Secuencia Capturada</span>
                             </h3>
                             <button id="restartBtn" class="cta-secondary py-2 px-4 rounded-lg transition-all transform hover:scale-105 flex items-center space-x-2">
                                 <i class="fas fa-redo"></i>
-                                <span>Nueva Foto</span>
+                                <span>Nueva Grabación</span>
                             </button>
                         </div>
-                        
-                        <!-- Preview de foto con tamaño fijo y centrado -->
-                        <div class="flex justify-center mb-4">
-                            <div class="photo-preview-container">
-                                <img id="photoPreview" src="" alt="Foto capturada">
-                                <div class="badge-cropped">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Recortada</span>
-                                </div>
+
+                        <!-- Info del video capturado -->
+                        <div class="grid grid-cols-3 gap-4 mb-4">
+                            <div class="stat-mini text-center">
+                                <p class="text-xs text-gray-500 uppercase font-semibold">Frames Capturados</p>
+                                <p id="capturedFrames" class="text-2xl font-black text-gray-900">0</p>
+                            </div>
+                            <div class="stat-mini text-center">
+                                <p class="text-xs text-gray-500 uppercase font-semibold">Duración</p>
+                                <p id="capturedDuration" class="text-2xl font-black text-gray-900">0s</p>
+                            </div>
+                            <div class="stat-mini text-center">
+                                <p class="text-xs text-gray-500 uppercase font-semibold">FPS</p>
+                                <p id="capturedFps" class="text-2xl font-black text-gray-900">0</p>
                             </div>
                         </div>
 
                         <!-- Botón Reconocer -->
                         <button id="recognizeBtn" class="w-full cta-primary text-white font-bold py-4 px-8 rounded-xl flex items-center justify-center space-x-3 transition-all transform hover:scale-105 shadow-lg">
                             <i class="fas fa-brain text-xl"></i>
-                            <span class="text-lg">Reconocer Seña</span>
+                            <span class="text-lg">Reconocer Seña con IA</span>
                         </button>
 
                         <!-- Indicador de carga -->
                         <div id="loadingIndicator" class="hidden mt-4 text-center">
                             <div class="loading-spinner"></div>
-                            <p class="text-gray-600 mt-2 font-semibold">Analizando seña con IA...</p>
+                            <p class="text-gray-600 mt-2 font-semibold">Procesando con CNN+BiGRU...</p>
+                            <p class="text-xs text-gray-500 mt-1">Analizando {{ num_frames }} frames</p>
                         </div>
                     </div>
                 </div>
@@ -132,18 +159,18 @@
             <!-- Resultado del Reconocimiento -->
             <div id="resultPanel" class="hidden prediction-display">
                 <div class="text-center relative z-10">
-                    <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                        <i class="fas fa-check text-white text-3xl"></i>
+                    <div class="w-20 h-20 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <i class="fas fa-hands text-white text-3xl"></i>
                     </div>
-                    <h3 class="font-black text-white text-2xl mb-3">Resultado</h3>
+                    <h3 class="font-black text-white text-2xl mb-3">Seña Detectada</h3>
                     
-                    <!-- Letra detectada -->
+                    <!-- Palabra detectada -->
                     <div class="bg-white rounded-2xl p-8 mb-4">
-                        <p class="text-sm text-gray-600 mb-2 font-semibold uppercase">Letra Detectada</p>
-                        <p id="detectedLetter" class="percentage-badge text-purple-700">A</p>
+                        <p class="text-sm text-gray-600 mb-2 font-semibold uppercase">Palabra/Frase</p>
+                        <p id="detectedWord" class="text-5xl font-black text-purple-700 mb-2" style="word-break: break-word;">HOLA</p>
                         <div class="flex items-center justify-center space-x-2 mt-4">
                             <div class="bg-green-500 rounded-full px-4 py-2">
-                                <span id="mainConfidence" class="text-white font-bold">95.3%</span>
+                                <span id="mainConfidence" class="text-white font-bold">92.5%</span>
                             </div>
                             <span class="text-gray-600 font-semibold">confianza</span>
                         </div>
@@ -163,7 +190,7 @@
             <div class="stat-mini">
                 <div class="flex items-center space-x-3">
                     <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-camera text-purple-600 text-xl"></i>
+                        <i class="fas fa-video text-purple-600 text-xl"></i>
                     </div>
                     <div>
                         <p class="text-xs font-semibold text-gray-500 uppercase">Estado Cámara</p>
@@ -175,7 +202,7 @@
             <div class="stat-mini">
                 <div class="flex items-center space-x-3">
                     <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-check-circle text-blue-600 text-xl"></i>
+                        <i class="fas fa-chart-line text-blue-600 text-xl"></i>
                     </div>
                     <div>
                         <p class="text-xs font-semibold text-gray-500 uppercase">Reconocimientos</p>
@@ -187,11 +214,11 @@
             <div class="stat-mini">
                 <div class="flex items-center space-x-3">
                     <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-leaf text-green-600 text-xl"></i>
+                        <i class="fas fa-brain text-green-600 text-xl"></i>
                     </div>
                     <div>
-                        <p class="text-xs font-semibold text-gray-500 uppercase">Modo</p>
-                        <p class="text-xl font-black text-green-600">Eficiente</p>
+                        <p class="text-xs font-semibold text-gray-500 uppercase">Modelo</p>
+                        <p class="text-lg font-black text-green-600">CNN+BiGRU</p>
                     </div>
                 </div>
             </div>
@@ -200,28 +227,43 @@
             <div class="instructions-box">
                 <div class="flex items-center space-x-3 mb-4">
                     <div class="icon-box">
-                        <i class="fas fa-lightbulb text-white"></i>
+                        <i class="fas fa-info-circle text-white"></i>
                     </div>
                     <h3 class="font-black text-gray-900 text-lg">Cómo Usar</h3>
                 </div>
                 <ol class="space-y-3">
                     <li class="flex items-start space-x-3">
                         <div class="w-6 h-6 bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 font-bold text-sm">1</div>
-                        <span class="text-sm text-gray-700">Inicia la cámara y posiciona tu mano frente a ella</span>
+                        <span class="text-sm text-gray-700">Inicia la cámara y posiciónate con buena iluminación</span>
                     </li>
                     <li class="flex items-start space-x-3">
                         <div class="w-6 h-6 bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 font-bold text-sm">2</div>
-                        <span class="text-sm text-gray-700">Espera a que se detecte tu mano (indicador verde)</span>
+                        <span class="text-sm text-gray-700">Ajusta la duración si lo necesitas (1.5s - 5s)</span>
                     </li>
                     <li class="flex items-start space-x-3">
                         <div class="w-6 h-6 bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 font-bold text-sm">3</div>
-                        <span class="text-sm text-gray-700"><strong>La foto se recortará</strong> mostrando solo tu mano automáticamente</span>
+                        <span class="text-sm text-gray-700">Presiona <strong>"Grabar"</strong> y realiza tu seña completa</span>
                     </li>
                     <li class="flex items-start space-x-3">
                         <div class="w-6 h-6 bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 font-bold text-sm">4</div>
-                        <span class="text-sm text-gray-700">Dale click a "Reconocer Seña" para obtener el resultado</span>
+                        <span class="text-sm text-gray-700">La grabación se detiene automáticamente, luego dale <strong>"Reconocer"</strong></span>
                     </li>
                 </ol>
+            </div>
+
+            <!-- Palabras disponibles -->
+            <div class="recognition-card">
+                <h4 class="font-bold text-gray-800 mb-3 flex items-center space-x-2">
+                    <i class="fas fa-list-ul text-purple-600"></i>
+                    <span>Señas Disponibles</span>
+                </h4>
+                <div class="flex flex-wrap gap-2">
+                    {% for label in labels %}
+                    <span class="px-3 py-1.5 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 rounded-full text-sm font-bold border border-purple-200">
+                        {{ label }}
+                    </span>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
@@ -237,21 +279,24 @@
     // ============================================================================
     const video = document.getElementById('video');
     const handCanvas = document.getElementById('handCanvas');
-    const captureCanvas = document.getElementById('captureCanvas');
     const toggleCameraBtn = document.getElementById('toggleCameraBtn');
-    const captureBtn = document.getElementById('captureBtn');
+    const recordBtn = document.getElementById('recordBtn');
     const recognizeBtn = document.getElementById('recognizeBtn');
     const restartBtn = document.getElementById('restartBtn');
     const cameraOverlay = document.getElementById('cameraOverlay');
-    const photoPanel = document.getElementById('photoPanel');
-    const photoPreview = document.getElementById('photoPreview');
+    const videoPanel = document.getElementById('videoPanel');
     const resultPanel = document.getElementById('resultPanel');
     const loadingIndicator = document.getElementById('loadingIndicator');
+    const recordingIndicator = document.getElementById('recordingIndicator');
+    const recordingProgress = document.getElementById('recordingProgress');
+    const progressBar = document.getElementById('progressBar');
     const handDetected = document.getElementById('handDetected');
-    const zoomIndicator = document.getElementById('zoomIndicator');
+    const durationControl = document.getElementById('durationControl');
+    const durationSlider = document.getElementById('durationSlider');
+    const durationValue = document.getElementById('durationValue');
+    const durationDisplay = document.getElementById('durationDisplay');
 
     const handCtx = handCanvas.getContext('2d');
-    const captureCtx = captureCanvas.getContext('2d');
 
     // ============================================================================
     // ESTADO
@@ -260,11 +305,14 @@
     let stream = null;
     let hands = null;
     let rafId = null;
-    let handIsVisible = false;
-    let photosCaptured = 0;
+    let isRecording = false;
+    let recordingStartTime = 0;
+    let capturedFrames = [];
+    let recordingDuration = 3.0;
     let recognitionsCount = 0;
-    let capturedPhotoData = null;
-    let lastHandBounds = null; // Para guardar la última posición de la mano
+    let recordingInterval = null;
+
+    const NUM_FRAMES = {{ num_frames }};
 
     // ============================================================================
     // MEDIAPIPE HANDS
@@ -275,7 +323,7 @@
         });
         
         hands.setOptions({
-            maxNumHands: 1,
+            maxNumHands: 2,
             modelComplexity: 0,
             minDetectionConfidence: 0.5,
             minTrackingConfidence: 0.5
@@ -284,9 +332,6 @@
         hands.onResults(onHandsResults);
     }
 
-    // ============================================================================
-    // CALLBACK DE MEDIAPIPE - GUARDAR POSICIÓN DE MANO
-    // ============================================================================
     function onHandsResults(results) {
         if (!cameraActive) return;
 
@@ -297,96 +342,57 @@
         handCtx.clearRect(0, 0, handCanvas.width, handCanvas.height);
 
         if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-            handIsVisible = true;
             handDetected.classList.remove('hidden');
-            zoomIndicator.classList.remove('hidden');
 
-            const landmarks = results.multiHandLandmarks[0];
+            for (const landmarks of results.multiHandLandmarks) {
+                // Conexiones
+                const connections = [
+                    [0,1],[1,2],[2,3],[3,4],
+                    [0,5],[5,6],[6,7],[7,8],
+                    [5,9],[9,10],[10,11],[11,12],
+                    [9,13],[13,14],[14,15],[15,16],
+                    [13,17],[17,18],[18,19],[19,20],
+                    [0,17]
+                ];
 
-            // Calcular bounding box de la mano
-            let minX = 1, minY = 1, maxX = 0, maxY = 0;
-            for (const lm of landmarks) {
-                minX = Math.min(minX, lm.x);
-                minY = Math.min(minY, lm.y);
-                maxX = Math.max(maxX, lm.x);
-                maxY = Math.max(maxY, lm.y);
-            }
-
-            // Agregar margen (15%) y guardar bounds
-            const padding = 0.15;
-            const width = maxX - minX;
-            const height = maxY - minY;
-            
-            lastHandBounds = {
-                x: Math.max(0, minX - width * padding),
-                y: Math.max(0, minY - height * padding),
-                width: Math.min(1, width * (1 + 2 * padding)),
-                height: Math.min(1, height * (1 + 2 * padding))
-            };
-
-            // Dibujar rectángulo de recorte
-            handCtx.strokeStyle = '#00ff88';
-            handCtx.lineWidth = 3;
-            handCtx.strokeRect(
-                lastHandBounds.x * handCanvas.width,
-                lastHandBounds.y * handCanvas.height,
-                lastHandBounds.width * handCanvas.width,
-                lastHandBounds.height * handCanvas.height
-            );
-
-            // Dibujar conexiones de la mano
-            const connections = [
-                [0,1],[1,2],[2,3],[3,4],
-                [0,5],[5,6],[6,7],[7,8],
-                [5,9],[9,10],[10,11],[11,12],
-                [9,13],[13,14],[14,15],[15,16],
-                [13,17],[17,18],[18,19],[19,20],
-                [0,17]
-            ];
-
-            handCtx.strokeStyle = '#00ffcc';
-            handCtx.lineWidth = 2;
-            handCtx.beginPath();
-            
-            for (const [start, end] of connections) {
-                const startLm = landmarks[start];
-                const endLm = landmarks[end];
-                handCtx.moveTo(startLm.x * handCanvas.width, startLm.y * handCanvas.height);
-                handCtx.lineTo(endLm.x * handCanvas.width, endLm.y * handCanvas.height);
-            }
-            handCtx.stroke();
-
-            // Dibujar puntos
-            for (const lm of landmarks) {
-                handCtx.fillStyle = '#ffff00';
+                handCtx.strokeStyle = '#00ffcc';
+                handCtx.lineWidth = 2;
                 handCtx.beginPath();
-                handCtx.arc(lm.x * handCanvas.width, lm.y * handCanvas.height, 4, 0, Math.PI * 2);
-                handCtx.fill();
+                
+                for (const [start, end] of connections) {
+                    const startLm = landmarks[start];
+                    const endLm = landmarks[end];
+                    handCtx.moveTo(startLm.x * handCanvas.width, startLm.y * handCanvas.height);
+                    handCtx.lineTo(endLm.x * handCanvas.width, endLm.y * handCanvas.height);
+                }
+                handCtx.stroke();
+
+                // Puntos
+                for (const lm of landmarks) {
+                    handCtx.fillStyle = '#ffff00';
+                    handCtx.beginPath();
+                    handCtx.arc(lm.x * handCanvas.width, lm.y * handCanvas.height, 4, 0, Math.PI * 2);
+                    handCtx.fill();
+                }
             }
         } else {
-            handIsVisible = false;
             handDetected.classList.add('hidden');
-            zoomIndicator.classList.add('hidden');
-            lastHandBounds = null;
         }
     }
 
-    // ============================================================================
-    // PROCESAR FRAMES
-    // ============================================================================
     async function processFrame() {
         if (cameraActive && hands) {
             try {
                 await hands.send({ image: video });
             } catch (e) {
-                console.error('Error en MediaPipe:', e);
+                console.error('Error MediaPipe:', e);
             }
         }
         rafId = requestAnimationFrame(processFrame);
     }
 
     // ============================================================================
-    // INICIAR/DETENER CÁMARA
+    // CÁMARA
     // ============================================================================
     async function startCamera() {
         try {
@@ -412,11 +418,12 @@
             toggleCameraBtn.innerHTML = '<i class="fas fa-stop text-xl"></i><span class="text-lg">Detener Cámara</span>';
             toggleCameraBtn.classList.remove('btn-camera-start');
             toggleCameraBtn.classList.add('btn-camera-stop');
-            captureBtn.classList.remove('hidden');
+            recordBtn.classList.remove('hidden');
+            durationControl.classList.remove('hidden');
             document.getElementById('cameraStatus').textContent = 'Activa';
 
         } catch (err) {
-            console.error('Error de cámara:', err);
+            console.error('Error cámara:', err);
             alert('No se pudo acceder a la cámara. Verifica los permisos.');
         }
     }
@@ -433,87 +440,113 @@
         toggleCameraBtn.innerHTML = '<i class="fas fa-play text-xl"></i><span class="text-lg">Iniciar Cámara</span>';
         toggleCameraBtn.classList.add('btn-camera-start');
         toggleCameraBtn.classList.remove('btn-camera-stop');
-        captureBtn.classList.add('hidden');
+        recordBtn.classList.add('hidden');
+        durationControl.classList.add('hidden');
         handDetected.classList.add('hidden');
-        zoomIndicator.classList.add('hidden');
         document.getElementById('cameraStatus').textContent = 'Inactiva';
-        lastHandBounds = null;
     }
 
     // ============================================================================
-    // CAPTURAR FOTO CON ZOOM A LA MANO
+    // CAPTURA DE FRAMES
     // ============================================================================
-    function capturePhoto() {
+    function captureFrame() {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0);
+        return canvas.toDataURL('image/jpeg', 0.85);
+    }
+
+    // ============================================================================
+    // GRABACIÓN
+    // ============================================================================
+    function startRecording() {
         if (!cameraActive) return;
 
-        // Verificar que hay una mano detectada
-        if (!lastHandBounds) {
-            alert('⚠️ No se detectó ninguna mano. Asegúrate de que tu mano esté visible.');
-            return;
+        capturedFrames = [];
+        isRecording = true;
+        recordingStartTime = Date.now();
+
+        // UI
+        recordingIndicator.classList.remove('hidden');
+        recordingProgress.classList.remove('hidden');
+        recordBtn.disabled = true;
+        toggleCameraBtn.disabled = true;
+        durationSlider.disabled = true;
+
+        // Capturar frames a ~10 FPS (100ms intervalo)
+        const frameInterval = 100;
+
+        recordingInterval = setInterval(() => {
+            if (!isRecording) return;
+
+            const frame = captureFrame();
+            capturedFrames.push(frame);
+
+            const elapsed = (Date.now() - recordingStartTime) / 1000;
+            document.getElementById('recordingTimer').textContent = `${elapsed.toFixed(1)}s`;
+            document.getElementById('frameCount').textContent = `${capturedFrames.length} frames`;
+            
+            const progress = (elapsed / recordingDuration) * 100;
+            progressBar.style.width = `${Math.min(progress, 100)}%`;
+
+            if (elapsed >= recordingDuration) {
+                stopRecording();
+            }
+        }, frameInterval);
+    }
+
+    function stopRecording() {
+        isRecording = false;
+        if (recordingInterval) {
+            clearInterval(recordingInterval);
+            recordingInterval = null;
         }
 
-        // Efecto de flash al capturar
-        const flash = document.createElement('div');
-        flash.className = 'capture-flash';
-        video.parentElement.appendChild(flash);
-        setTimeout(() => flash.remove(), 300);
+        recordingIndicator.classList.add('hidden');
+        recordingProgress.classList.add('hidden');
+        recordBtn.disabled = false;
+        toggleCameraBtn.disabled = false;
+        durationSlider.disabled = false;
+        progressBar.style.width = '0%';
 
-        // Capturar frame completo
-        captureCanvas.width = video.videoWidth || 640;
-        captureCanvas.height = video.videoHeight || 480;
-        captureCtx.drawImage(video, 0, 0);
+        if (capturedFrames.length > 0) {
+            const duration = (Date.now() - recordingStartTime) / 1000;
+            const fps = (capturedFrames.length / duration).toFixed(1);
 
-        // Recortar región de la mano
-        const cropX = lastHandBounds.x * captureCanvas.width;
-        const cropY = lastHandBounds.y * captureCanvas.height;
-        const cropWidth = lastHandBounds.width * captureCanvas.width;
-        const cropHeight = lastHandBounds.height * captureCanvas.height;
+            document.getElementById('capturedFrames').textContent = capturedFrames.length;
+            document.getElementById('capturedDuration').textContent = `${duration.toFixed(1)}s`;
+            document.getElementById('capturedFps').textContent = fps;
 
-        // Crear canvas temporal para el recorte
-        const croppedCanvas = document.createElement('canvas');
-        croppedCanvas.width = cropWidth;
-        croppedCanvas.height = cropHeight;
-        const croppedCtx = croppedCanvas.getContext('2d');
+            videoPanel.classList.remove('hidden');
+            resultPanel.classList.add('hidden');
+            document.getElementById('cameraControls').classList.add('hidden');
 
-        // Copiar región de la mano
-        croppedCtx.drawImage(
-            captureCanvas,
-            cropX, cropY, cropWidth, cropHeight,
-            0, 0, cropWidth, cropHeight
-        );
-
-        // Convertir a base64
-        capturedPhotoData = croppedCanvas.toDataURL('image/jpeg', 0.95);
-
-        // Mostrar preview
-        photoPreview.src = capturedPhotoData;
-        
-        // Actualizar UI
-        photoPanel.classList.remove('hidden');
-        resultPanel.classList.add('hidden');
-        document.getElementById('cameraControls').classList.add('hidden');
-        
-        photosCaptured++;
-        document.getElementById('photoCount').textContent = `${photosCaptured} foto${photosCaptured !== 1 ? 's' : ''}`;
-
-        // Detener cámara
-        stopCamera();
+            stopCamera();
+            
+            console.log(`✅ Capturados ${capturedFrames.length} frames en ${duration.toFixed(1)}s (${fps} FPS)`);
+        } else {
+            alert('⚠️ No se capturaron frames. Intenta de nuevo.');
+        }
     }
 
     // ============================================================================
-    // RECONOCER SEÑA
+    // RECONOCIMIENTO
     // ============================================================================
-    async function recognizeSign() {
-        if (!capturedPhotoData) return;
+    async function recognizeSequence() {
+        if (capturedFrames.length === 0) return;
 
         loadingIndicator.classList.remove('hidden');
         recognizeBtn.disabled = true;
 
         try {
             const formData = new FormData();
-            formData.append('photo', capturedPhotoData);
+            formData.append('frames', JSON.stringify(capturedFrames));
 
-            const response = await fetch("{% url 'recognition:recognize_photo' %}", {
+            console.log(`📤 Enviando ${capturedFrames.length} frames al servidor...`);
+
+            const response = await fetch("{% url 'recognition:recognize_dynamic' %}", {
                 method: 'POST',
                 body: formData
             });
@@ -521,18 +554,18 @@
             const result = await response.json();
 
             if (result.status === 'success') {
-                // Mostrar resultado
-                document.getElementById('detectedLetter').textContent = result.class;
+                console.log('Reconocimiento exitoso:', result);
+
+                document.getElementById('detectedWord').textContent = result.class;
                 document.getElementById('mainConfidence').textContent = `${result.confidence}%`;
 
-                // Top 3
                 const top3Container = document.getElementById('top3Container');
                 top3Container.innerHTML = result.top3.map((item, idx) => `
                     <div class="prediction-item ${idx === 0 ? 'first-place' : ''}">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-2">
                                 <span class="text-xs font-bold text-gray-400">#${idx + 1}</span>
-                                <span class="font-black text-lg text-gray-800">${item.letra}</span>
+                                <span class="font-black text-lg text-gray-800">${item.seña}</span>
                             </div>
                             <span class="text-sm font-bold ${idx === 0 ? 'text-green-600' : 'text-gray-500'}">${item.confianza}%</span>
                         </div>
@@ -542,6 +575,12 @@
                 resultPanel.classList.remove('hidden');
                 recognitionsCount++;
                 document.getElementById('recognitionCount').textContent = recognitionsCount;
+
+                if (result.frames_info) {
+                    console.log(`Frames recibidos: ${result.frames_info.received}`);
+                    console.log(`Frames usados: ${result.frames_info.used}`);
+                    console.log(`Sampling: ${result.frames_info.sampling}`);
+                }
 
             } else {
                 alert('Error: ' + result.error);
@@ -557,14 +596,14 @@
     }
 
     // ============================================================================
-    // REINICIAR (NUEVA FOTO)
+    // REINICIAR
     // ============================================================================
     function restart() {
-        photoPanel.classList.add('hidden');
+        videoPanel.classList.add('hidden');
         resultPanel.classList.add('hidden');
         document.getElementById('cameraControls').classList.remove('hidden');
-        capturedPhotoData = null;
-        lastHandBounds = null;
+        capturedFrames = [];
+        document.getElementById('frameCount').textContent = '0 frames';
         startCamera();
     }
 
@@ -576,9 +615,18 @@
         else startCamera();
     });
 
-    captureBtn.addEventListener('click', capturePhoto);
-    recognizeBtn.addEventListener('click', recognizeSign);
+    recordBtn.addEventListener('click', () => {
+        if (!isRecording) startRecording();
+    });
+
+    recognizeBtn.addEventListener('click', recognizeSequence);
     restartBtn.addEventListener('click', restart);
+
+    durationSlider.addEventListener('input', (e) => {
+        recordingDuration = parseFloat(e.target.value);
+        durationValue.textContent = `${recordingDuration.toFixed(1)}s`;
+        durationDisplay.textContent = recordingDuration.toFixed(1);
+    });
 </script>
 
 {% endblock %}
