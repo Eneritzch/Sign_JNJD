@@ -1,0 +1,419 @@
+/* ============================================ */
+/* ANALYTICS.CSS - ESTILOS ESPECÍFICOS */
+/* ============================================ */
+
+/* Selector de Modelo */
+.analytics-model-selector {
+    display: inline-flex;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: var(--radius-xl);
+    padding: 0.25rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(186, 164, 203, 0.2);
+}
+
+.model-tab {
+    color: var(--color-accent);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.875rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    font-size: var(--text-base);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.model-tab:hover {
+    background: rgba(186, 164, 203, 0.1);
+    color: var(--color-primary-darker);
+}
+
+.model-tab.active {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(169, 156, 195, 0.3);
+}
+
+/* Secciones de Modelo */
+.model-section {
+    animation: fadeInSection 0.5s ease-in-out;
+}
+
+.model-section.hidden {
+    display: none;
+}
+
+@keyframes fadeInSection {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* KPI Cards Mejoradas */
+.analytics-kpi-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(186, 164, 203, 0.2);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+}
+
+.analytics-kpi-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-4px);
+    border-color: rgba(186, 164, 203, 0.4);
+}
+
+.analytics-kpi-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.analytics-kpi-label {
+    color: #6b7280;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.analytics-kpi-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+/* Iconos específicos por tipo */
+.analytics-kpi-icon.icon-accuracy {
+    background: linear-gradient(135deg, #415E72 0%, #2d4250 100%);
+}
+
+.analytics-kpi-icon.icon-loss {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+}
+
+.analytics-kpi-icon.icon-epochs {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.analytics-kpi-icon.icon-usage {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.analytics-kpi-value {
+    font-size: clamp(2rem, 5vw, 2.5rem);
+    font-weight: 900;
+    color: var(--color-dark);
+    margin-top: 0.5rem;
+    line-height: 1;
+}
+
+.analytics-kpi-subtitle {
+    color: #9ca3af;
+    font-size: var(--text-xs);
+    margin-top: 0.5rem;
+}
+
+/* Chart Cards */
+.analytics-chart-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(186, 164, 203, 0.2);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.analytics-chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-md);
+}
+
+.analytics-chart-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.analytics-chart-title-icon {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.analytics-chart-title h3 {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--color-dark);
+    margin: 0;
+}
+
+.analytics-chart-subtitle {
+    font-size: var(--text-xs);
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.analytics-chart-canvas {
+    width: 100%;
+    max-height: 300px;
+}
+
+/* Confidence Stats Grid */
+.analytics-confidence-grid {
+    margin-top: var(--space-md);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(100px, 1fr)); /* evita que se expandan demasiado */
+    gap: var(--space-md);
+    justify-items: center;       /* centra el contenido dentro de cada celda */
+    justify-content: center;     /* centra el grid completo */
+    width: fit-content;          /* permite que margin: auto funcione */
+    margin-left: auto;
+    margin-right: auto;
+}
+.analytics-confidence-stat {
+    text-align: center;
+    padding: var(--space-sm);
+    background: rgba(186, 164, 203, 0.05);
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(186, 164, 203, 0.1);
+}
+
+.analytics-confidence-stat-label {
+    font-size: var(--text-xs);
+    color: #6b7280;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.analytics-confidence-stat-value {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 900;
+    color: var(--color-dark);
+}
+
+.analytics-confidence-stat-value.stat-avg {
+    color: #415E72;
+}
+
+.analytics-confidence-stat-value.stat-min {
+    color: #f59e0b;
+}
+
+.analytics-confidence-stat-value.stat-max {
+    color: #10b981;
+}
+
+/* Technical Details Card */
+.analytics-tech-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(186, 164, 203, 0.2);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.analytics-tech-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: var(--space-md);
+}
+
+.analytics-tech-icon {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.analytics-tech-header h3 {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--color-dark);
+    margin: 0;
+}
+
+.analytics-tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-md);
+}
+
+.analytics-tech-item {
+    background: rgba(186, 164, 203, 0.08);
+    border: 1px solid rgba(186, 164, 203, 0.2);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    transition: all 0.3s ease;
+}
+
+.analytics-tech-item:hover {
+    background: rgba(186, 164, 203, 0.12);
+    border-color: rgba(186, 164, 203, 0.4);
+    transform: translateY(-2px);
+}
+
+.analytics-tech-item-label {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+}
+
+.analytics-tech-item-value {
+    font-size: clamp(1.125rem, 2vw, 1.25rem);
+    font-weight: 900;
+    color: var(--color-accent);
+    margin-bottom: 0.25rem;
+}
+
+.analytics-tech-item-desc {
+    font-size: var(--text-xs);
+    color: #9ca3af;
+}
+
+/* Page Header */
+.analytics-page-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.analytics-page-title {
+    font-size: var(--text-5xl);
+    font-weight: 900;
+    margin-bottom: var(--space-md);
+    color: var(--color-dark);
+}
+
+.analytics-page-title .gradient-text {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.analytics-page-subtitle {
+    font-size: var(--text-xl);
+    color: #6b7280;
+    max-width: 42rem;
+    margin: 0 auto;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .analytics-confidence-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .analytics-tech-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .analytics-kpi-value {
+        font-size: 2rem;
+    }
+    
+    .model-tab {
+        padding: 0.75rem 1rem;
+        font-size: var(--text-sm);
+    }
+}
+
+@media (max-width: 640px) {
+    .analytics-chart-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .analytics-model-selector {
+        width: 100%;
+    }
+    
+    .model-tab {
+        flex: 1;
+        justify-content: center;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .analytics-model-selector {
+        display: none;
+    }
+    
+    .analytics-kpi-card,
+    .analytics-chart-card,
+    .analytics-tech-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        break-inside: avoid;
+    }
+}
+
+/* Dark Mode Support (opcional) */
+@media (prefers-color-scheme: dark) {
+    .analytics-kpi-card,
+    .analytics-chart-card,
+    .analytics-tech-card {
+        background: rgba(30, 41, 59, 0.95);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .analytics-kpi-label,
+    .analytics-chart-subtitle,
+    .analytics-confidence-stat-label,
+    .analytics-tech-item-label {
+        color: #94a3b8;
+    }
+    
+    .analytics-kpi-value,
+    .analytics-chart-title h3,
+    .analytics-tech-header h3,
+    .analytics-confidence-stat-value,
+    .analytics-page-title {
+        color: #e2e8f0;
+    }
+    
+    .analytics-tech-item {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .analytics-tech-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+}

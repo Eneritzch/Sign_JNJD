@@ -1,0 +1,290 @@
+/* ============================================ */
+/* CONTENEDOR DE VIDEO */
+/* ============================================ */
+
+.video-container {
+    background: linear-gradient(135deg, var(--color-dark) 0%, var(--color-darker) 100%);
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    border: clamp(2px, 0.5vw, 4px) solid rgba(139, 92, 246, 0.3);
+}
+
+.video-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(139, 92, 246, 0.03) 2px,
+        rgba(139, 92, 246, 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+.camera-active {
+    animation: pulse-ring 2s infinite;
+    border-color: #8b5cf6;
+}
+
+@keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(139, 92, 246, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+}
+
+/* ============================================ */
+/* CARDS DE RECONOCIMIENTO */
+/* ============================================ */
+
+.recognition-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(186, 164, 203, 0.3);
+    box-shadow: var(--shadow-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    transition: all 0.3s ease;
+}
+
+.recognition-card:hover {
+    box-shadow: 0 15px 50px rgba(169, 156, 195, 0.25);
+    transform: translateY(-2px);
+}
+
+.stat-mini {
+    background: linear-gradient(135deg, rgba(186, 164, 203, 0.15) 0%, rgba(169, 156, 195, 0.1) 100%);
+    border: 2px solid rgba(186, 164, 203, 0.3);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm);
+    transition: all 0.3s ease;
+}
+
+.stat-mini:hover {
+    background: linear-gradient(135deg, rgba(186, 164, 203, 0.25) 0%, rgba(169, 156, 195, 0.2) 100%);
+    border-color: rgba(186, 164, 203, 0.5);
+    transform: translateY(-2px);
+}
+
+/* ============================================ */
+/* DISPLAY DE PREDICCIÓN */
+/* ============================================ */
+
+.prediction-display {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    box-shadow: var(--shadow-primary);
+    border-radius: var(--radius-xl);
+    padding: var(--space-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.prediction-display::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(255, 255, 255, 0.05) 10px,
+        rgba(255, 255, 255, 0.05) 20px
+    );
+    animation: bg-grid-flow 20s linear infinite;
+}
+
+@keyframes bg-grid-flow {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+}
+
+/* ============================================ */
+/* BARRA DE CONFIANZA */
+/* ============================================ */
+
+.confidence-glow {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+    background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    border-radius: 9999px;
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.confidence-bar-container {
+    background: rgba(186, 164, 203, 0.2);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 9999px;
+    height: clamp(0.5rem, 2vw, 0.75rem);
+    overflow: hidden;
+}
+
+/* ============================================ */
+/* HISTORIAL */
+/* ============================================ */
+
+.history-item {
+    animation: slide-in 0.3s ease-out;
+    transition: all 0.3s ease;
+    padding: var(--space-sm);
+    border-radius: var(--radius-sm);
+}
+
+.history-item:hover {
+    transform: translateX(-4px);
+    box-shadow: 0 4px 12px rgba(169, 156, 195, 0.3);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(186, 164, 203, 0.1);
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary-darker));
+}
+
+/* ============================================ */
+/* BOTONES DE CÁMARA */
+/* ============================================ */
+
+.btn-camera-start {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    box-shadow: var(--shadow-primary);
+    color: white;
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.btn-camera-start:hover {
+    background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-darker) 100%);
+    box-shadow: 0 15px 40px rgba(169, 156, 195, 0.5);
+    transform: translateY(-2px);
+}
+
+.btn-camera-stop {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+    color: white;
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.btn-camera-stop:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    box-shadow: 0 15px 40px rgba(239, 68, 68, 0.5);
+    transform: translateY(-2px);
+}
+
+.btn-capture {
+    border: 2px solid var(--color-primary);
+    color: var(--color-accent);
+    background: white;
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-capture:hover {
+    background: rgba(186, 164, 203, 0.1);
+    border-color: var(--color-primary-dark);
+    transform: scale(1.05);
+}
+
+/* ============================================ */
+/* INDICADORES */
+/* ============================================ */
+
+.hand-detected-badge {
+    background: rgba(33, 243, 138, 0.7);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.zoom-indicator {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#cameraOverlay {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98));
+    backdrop-filter: blur(10px);
+    z-index: 2;
+}
+
+#recordingIndicator {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5);
+    z-index: 3;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: white;
+}
+
+#recordingIndicator span:first-child {
+    animation: pulse 1.5s infinite;
+}
+
+/* ============================================ */
+/* INDICADORES DE CALIDAD */
+/* ============================================ */
+
+.quality-indicator {
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.quality-low {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border: 2px solid #ef4444;
+    color: #991b1b;
+}
+
+.quality-med {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 2px solid #f59e0b;
+    color: #92400e;
+}
+
+.quality-high {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border: 2px solid #10b981;
+    color: #065f46;
+}
+

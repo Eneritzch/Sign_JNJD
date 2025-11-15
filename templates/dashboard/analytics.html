@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Analítica - SignLang AI{% endblock %}
+{% block title %}Analítica{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/analytics.css' %}">
+{% endblock %}
 
 {% block content %}
 
@@ -15,23 +19,23 @@
 
 <div class="container-fluid section-spacing">
     <!-- Header -->
-    <header class="text-center mb-12">
-        <h2 class="text-5xl md:text-7xl font-black mb-4 text-gray-900">
+    <header class="analytics-page-header">
+        <h2 class="text-4xl md:text-6xl font-black mb-4 text-gray-900">
             Analítica <span class="gradient-text">Completa</span>
         </h2>
-        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+        <p class="analytics-page-subtitle">
             Métricas de entrenamiento y estadísticas de uso en tiempo real
         </p>
     </header>
 
     <!-- Selector de Modelo -->
     <div class="flex justify-center mb-8">
-        <div class="inline-flex bg-white dark:bg-gray-800 rounded-xl p-1 shadow-lg border border-gray-200 dark:border-gray-700">
-            <button id="staticModelBtn" class="model-tab active px-6 py-3 rounded-lg font-bold transition-all">
-                <i class="fas fa-hand-paper mr-2"></i>Señas Estáticas
+        <div class="analytics-model-selector">
+            <button id="staticModelBtn" class="model-tab active">
+                <i class="fas fa-hand-paper"></i>Señas Estáticas
             </button>
-            <button id="dynamicModelBtn" class="model-tab px-6 py-3 rounded-lg font-bold transition-all">
-                <i class="fas fa-video mr-2"></i>Señas Dinámicas
+            <button id="dynamicModelBtn" class="model-tab">
+                <i class="fas fa-video"></i>Señas Dinámicas
             </button>
         </div>
     </div>
@@ -40,140 +44,142 @@
     <div id="staticSection" class="model-section">
         <!-- KPIs Principales -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="recognition-card">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-gray-600 dark:text-gray-400 text-sm font-semibold uppercase">Precisión Final</p>
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-bullseye text-white"></i>
+            <div class="analytics-kpi-card">
+                <div class="analytics-kpi-header">
+                    <p class="analytics-kpi-label">Precisión Final</p>
+                    <div class="analytics-kpi-icon icon-accuracy">
+                        <i class="fas fa-bullseye"></i>
                     </div>
                 </div>
-                <p id="staticFinalAccuracy" class="text-4xl font-black text-blue-600 dark:text-blue-400 mt-2">--</p>
-                <p class="text-xs text-gray-500 mt-1">Conjunto de validación</p>
+                <p id="staticFinalAccuracy" class="analytics-kpi-value">--</p>
+                <p class="analytics-kpi-subtitle">Conjunto de validación</p>
             </div>
             
-            <div class="recognition-card">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-gray-600 dark:text-gray-400 text-sm font-semibold uppercase">Pérdida Final</p>
-                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-chart-line text-white"></i>
+            <div class="analytics-kpi-card">
+                <div class="analytics-kpi-header">
+                    <p class="analytics-kpi-label">Pérdida Final</p>
+                    <div class="analytics-kpi-icon icon-loss">
+                        <i class="fas fa-chart-line"></i>
                     </div>
                 </div>
-                <p id="staticFinalLoss" class="text-4xl font-black text-purple-600 dark:text-purple-400 mt-2">--</p>
-                <p class="text-xs text-gray-500 mt-1">Validación</p>
+                <p id="staticFinalLoss" class="analytics-kpi-value">--</p>
+                <p class="analytics-kpi-subtitle">Validación</p>
             </div>
 
-            <div class="recognition-card">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-gray-600 dark:text-gray-400 text-sm font-semibold uppercase">Épocas</p>
-                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-layer-group text-white"></i>
+            <div class="analytics-kpi-card">
+                <div class="analytics-kpi-header">
+                    <p class="analytics-kpi-label">Épocas</p>
+                    <div class="analytics-kpi-icon icon-epochs">
+                        <i class="fas fa-layer-group"></i>
                     </div>
                 </div>
-                <p id="staticTotalEpochs" class="text-4xl font-black text-green-600 dark:text-green-400 mt-2">--</p>
-                <p class="text-xs text-gray-500 mt-1">Total de iteraciones</p>
+                <p id="staticTotalEpochs" class="analytics-kpi-value">--</p>
+                <p class="analytics-kpi-subtitle">Total de iteraciones</p>
             </div>
 
-            <div class="recognition-card">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-gray-600 dark:text-gray-400 text-sm font-semibold uppercase">Reconocimientos</p>
-                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-users text-white"></i>
+            <div class="analytics-kpi-card">
+                <div class="analytics-kpi-header">
+                    <p class="analytics-kpi-label">Reconocimientos</p>
+                    <div class="analytics-kpi-icon icon-usage">
+                        <i class="fas fa-users"></i>
                     </div>
                 </div>
-                <p id="staticTotalRecognitions" class="text-4xl font-black text-orange-600 dark:text-orange-400 mt-2">0</p>
-                <p class="text-xs text-gray-500 mt-1">Uso en producción</p>
+                <p id="staticTotalRecognitions" class="analytics-kpi-value">0</p>
+                <p class="analytics-kpi-subtitle">Uso en producción</p>
             </div>
         </div>
 
         <!-- Gráficos de Entrenamiento -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div class="recognition-card">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-800 flex items-center space-x-2">
-                        <div class="icon-box w-10 h-10 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-chart-line text-white"></i>
+            <div class="analytics-chart-card">
+                <div class="analytics-chart-header">
+                    <div class="analytics-chart-title">
+                        <div class="analytics-chart-title-icon">
+                            <i class="fas fa-chart-line"></i>
                         </div>
-                        <span>Precisión por Época</span>
-                    </h3>
-                    <span class="text-xs text-gray-500 font-semibold">Entrenamiento vs Validación</span>
+                        <h3>Precisión por Época</h3>
+                    </div>
                 </div>
-                <canvas id="staticAccuracyChart" class="w-full" style="max-height: 300px;"></canvas>
+                <canvas id="staticAccuracyChart" class="analytics-chart-canvas"></canvas>
             </div>
 
-            <div class="recognition-card">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-800 flex items-center space-x-2">
-                        <div class="icon-box w-10 h-10 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-chart-area text-white"></i>
+            <div class="analytics-chart-card">
+                <div class="analytics-chart-header">
+                    <div class="analytics-chart-title">
+                        <div class="analytics-chart-title-icon">
+                            <i class="fas fa-chart-area"></i>
                         </div>
-                        <span>Pérdida por Época</span>
-                    </h3>
-                    <span class="text-xs text-gray-500 font-semibold">Entrenamiento vs Validación</span>
+                        <h3>Pérdida por Época</h3>
+                    </div>
                 </div>
-                <canvas id="staticLossChart" class="w-full" style="max-height: 300px;"></canvas>
+                <canvas id="staticLossChart" class="analytics-chart-canvas"></canvas>
             </div>
         </div>
 
         <!-- Uso en Producción -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div class="recognition-card">
-                <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center space-x-2">
-                    <div class="icon-box w-10 h-10 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-trophy text-white"></i>
+            <div class="analytics-chart-card">
+                <div class="analytics-chart-header">
+                    <div class="analytics-chart-title">
+                        <div class="analytics-chart-title-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h3>Top 5 Letras Reconocidas</h3>
                     </div>
-                    <span>Top 10 Letras Reconocidas</span>
-                </h3>
-                <canvas id="staticUsageChart" style="max-height: 350px;"></canvas>
+                </div>
+                <canvas id="staticUsageChart" class="analytics-chart-canvas" style="max-height: 350px;"></canvas>
             </div>
 
-            <div class="recognition-card">
-                <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center space-x-2">
-                    <div class="icon-box w-10 h-10 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-percent text-white"></i>
+            <div class="analytics-chart-card">
+                <div class="analytics-chart-header">
+                    <div class="analytics-chart-title">
+                        <div class="analytics-chart-title-icon">
+                            <i class="fas fa-percent"></i>
+                        </div>
+                        <h3>Historial de Confianza</h3>
                     </div>
-                    <span>Historial de Confianza</span>
-                </h3>
-                <canvas id="staticConfidenceChart" style="max-height: 350px;"></canvas>
-                <div class="mt-4 grid grid-cols-3 gap-4">
-                    <div class="text-center">
-                        <p class="text-xs text-gray-500 uppercase font-semibold">Promedio</p>
-                        <p id="staticAvgConfidence" class="text-2xl font-black text-blue-600">--</p>
+                </div>
+                <canvas id="staticConfidenceChart" class="analytics-chart-canvas" style="max-height: 350px;"></canvas>
+                <div class="analytics-confidence-grid">
+                    <div class="analytics-confidence-stat">
+                        <p class="analytics-confidence-stat-label">Promedio</p>
+                        <p id="staticAvgConfidence" class="analytics-confidence-stat-value stat-avg">--</p>
                     </div>
-                    <div class="text-center">
-                        <p class="text-xs text-gray-500 uppercase font-semibold">Mínima</p>
-                        <p id="staticMinConfidence" class="text-2xl font-black text-orange-600">--</p>
+                    <div class="analytics-confidence-stat">
+                        <p class="analytics-confidence-stat-label">Mínima</p>
+                        <p id="staticMinConfidence" class="analytics-confidence-stat-value stat-min">--</p>
                     </div>
-                    <div class="text-center">
-                        <p class="text-xs text-gray-500 uppercase font-semibold">Máxima</p>
-                        <p id="staticMaxConfidence" class="text-2xl font-black text-green-600">--</p>
+                    <div class="analytics-confidence-stat">
+                        <p class="analytics-confidence-stat-label">Máxima</p>
+                        <p id="staticMaxConfidence" class="analytics-confidence-stat-value stat-max">--</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Detalles Técnicos -->
-        <div class="recognition-card">
-            <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center space-x-2">
-                <div class="icon-box w-10 h-10 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-cog text-white"></i>
+        <div class="analytics-tech-card">
+            <div class="analytics-tech-header">
+                <div class="analytics-tech-icon">
+                    <i class="fas fa-cog"></i>
                 </div>
-                <span>Configuración del Modelo</span>
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-200">
-                    <p class="text-xs font-bold text-gray-600 uppercase mb-1">Arquitectura</p>
-                    <p class="text-xl font-black text-blue-700">MobileNetV2</p>
-                    <p class="text-xs text-gray-500 mt-1">Transfer Learning</p>
+                <h3>Configuración del Modelo</h3>
+            </div>
+            <div class="analytics-tech-grid">
+                <div class="analytics-tech-item">
+                    <p class="analytics-tech-item-label">Arquitectura</p>
+                    <p class="analytics-tech-item-value">MobileNetV2</p>
+                    <p class="analytics-tech-item-desc">Transfer Learning</p>
                 </div>
-                <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
-                    <p class="text-xs font-bold text-gray-600 uppercase mb-1">Clases</p>
-                    <p class="text-xl font-black text-purple-700">24 Letras</p>
-                    <p class="text-xs text-gray-500 mt-1">A-Y (sin J)</p>
+                <div class="analytics-tech-item">
+                    <p class="analytics-tech-item-label">Clases</p>
+                    <p class="analytics-tech-item-value">24 Letras</p>
+                    <p class="analytics-tech-item-desc">A-Y (sin J)</p>
                 </div>
-                <div class="bg-gradient-to-br from-green-50 to-teal-50 rounded-xl p-4 border border-green-200">
-                    <p class="text-xs font-bold text-gray-600 uppercase mb-1">Entrada</p>
-                    <p class="text-xl font-black text-green-700">224x224x3</p>
-                    <p class="text-xs text-gray-500 mt-1">RGB normalizado</p>
+                <div class="analytics-tech-item">
+                    <p class="analytics-tech-item-label">Entrada</p>
+                    <p class="analytics-tech-item-value">224x224x3</p>
+                    <p class="analytics-tech-item-desc">RGB normalizado</p>
                 </div>
             </div>
         </div>
@@ -183,140 +189,142 @@
     <div id="dynamicSection" class="model-section hidden">
         <!-- KPIs Principales -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="recognition-card">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-gray-600 dark:text-gray-400 text-sm font-semibold uppercase">Precisión Final</p>
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-bullseye text-white"></i>
+            <div class="analytics-kpi-card">
+                <div class="analytics-kpi-header">
+                    <p class="analytics-kpi-label">Precisión Final</p>
+                    <div class="analytics-kpi-icon icon-accuracy">
+                        <i class="fas fa-bullseye"></i>
                     </div>
                 </div>
-                <p id="dynamicFinalAccuracy" class="text-4xl font-black text-blue-600 dark:text-blue-400 mt-2">--</p>
-                <p class="text-xs text-gray-500 mt-1">Conjunto de validación</p>
+                <p id="dynamicFinalAccuracy" class="analytics-kpi-value">--</p>
+                <p class="analytics-kpi-subtitle">Conjunto de validación</p>
             </div>
             
-            <div class="recognition-card">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-gray-600 dark:text-gray-400 text-sm font-semibold uppercase">Pérdida Final</p>
-                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-chart-line text-white"></i>
+            <div class="analytics-kpi-card">
+                <div class="analytics-kpi-header">
+                    <p class="analytics-kpi-label">Pérdida Final</p>
+                    <div class="analytics-kpi-icon icon-loss">
+                        <i class="fas fa-chart-line"></i>
                     </div>
                 </div>
-                <p id="dynamicFinalLoss" class="text-4xl font-black text-purple-600 dark:text-purple-400 mt-2">--</p>
-                <p class="text-xs text-gray-500 mt-1">Validación</p>
+                <p id="dynamicFinalLoss" class="analytics-kpi-value">--</p>
+                <p class="analytics-kpi-subtitle">Validación</p>
             </div>
 
-            <div class="recognition-card">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-gray-600 dark:text-gray-400 text-sm font-semibold uppercase">Épocas</p>
-                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-layer-group text-white"></i>
+            <div class="analytics-kpi-card">
+                <div class="analytics-kpi-header">
+                    <p class="analytics-kpi-label">Épocas</p>
+                    <div class="analytics-kpi-icon icon-epochs">
+                        <i class="fas fa-layer-group"></i>
                     </div>
                 </div>
-                <p id="dynamicTotalEpochs" class="text-4xl font-black text-green-600 dark:text-green-400 mt-2">--</p>
-                <p class="text-xs text-gray-500 mt-1">Total de iteraciones</p>
+                <p id="dynamicTotalEpochs" class="analytics-kpi-value">--</p>
+                <p class="analytics-kpi-subtitle">Total de iteraciones</p>
             </div>
 
-            <div class="recognition-card">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-gray-600 dark:text-gray-400 text-sm font-semibold uppercase">Reconocimientos</p>
-                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-users text-white"></i>
+            <div class="analytics-kpi-card">
+                <div class="analytics-kpi-header">
+                    <p class="analytics-kpi-label">Reconocimientos</p>
+                    <div class="analytics-kpi-icon icon-usage">
+                        <i class="fas fa-users"></i>
                     </div>
                 </div>
-                <p id="dynamicTotalRecognitions" class="text-4xl font-black text-orange-600 dark:text-orange-400 mt-2">0</p>
-                <p class="text-xs text-gray-500 mt-1">Uso en producción</p>
+                <p id="dynamicTotalRecognitions" class="analytics-kpi-value">0</p>
+                <p class="analytics-kpi-subtitle">Uso en producción</p>
             </div>
         </div>
 
         <!-- Gráficos de Entrenamiento -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div class="recognition-card">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-800 flex items-center space-x-2">
-                        <div class="icon-box w-10 h-10 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-chart-line text-white"></i>
+            <div class="analytics-chart-card">
+                <div class="analytics-chart-header">
+                    <div class="analytics-chart-title">
+                        <div class="analytics-chart-title-icon">
+                            <i class="fas fa-chart-line"></i>
                         </div>
-                        <span>Precisión por Época</span>
-                    </h3>
-                    <span class="text-xs text-gray-500 font-semibold">Entrenamiento vs Validación</span>
+                        <h3>Precisión por Época</h3>
+                    </div>
                 </div>
-                <canvas id="dynamicAccuracyChart" class="w-full" style="max-height: 300px;"></canvas>
+                <canvas id="dynamicAccuracyChart" class="analytics-chart-canvas"></canvas>
             </div>
 
-            <div class="recognition-card">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-800 flex items-center space-x-2">
-                        <div class="icon-box w-10 h-10 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-chart-area text-white"></i>
+            <div class="analytics-chart-card">
+                <div class="analytics-chart-header">
+                    <div class="analytics-chart-title">
+                        <div class="analytics-chart-title-icon">
+                            <i class="fas fa-chart-area"></i>
                         </div>
-                        <span>Pérdida por Época</span>
-                    </h3>
-                    <span class="text-xs text-gray-500 font-semibold">Entrenamiento vs Validación</span>
+                        <h3>Pérdida por Época</h3>
+                    </div>
                 </div>
-                <canvas id="dynamicLossChart" class="w-full" style="max-height: 300px;"></canvas>
+                <canvas id="dynamicLossChart" class="analytics-chart-canvas"></canvas>
             </div>
         </div>
 
         <!-- Uso en Producción -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div class="recognition-card">
-                <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center space-x-2">
-                    <div class="icon-box w-10 h-10 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-trophy text-white"></i>
+            <div class="analytics-chart-card">
+                <div class="analytics-chart-header">
+                    <div class="analytics-chart-title">
+                        <div class="analytics-chart-title-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h3>Top 10 Señas Reconocidas</h3>
                     </div>
-                    <span>Top 10 Señas Reconocidas</span>
-                </h3>
-                <canvas id="dynamicUsageChart" style="max-height: 350px;"></canvas>
+                </div>
+                <canvas id="dynamicUsageChart" class="analytics-chart-canvas" style="max-height: 350px;"></canvas>
             </div>
 
-            <div class="recognition-card">
-                <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center space-x-2">
-                    <div class="icon-box w-10 h-10 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-percent text-white"></i>
+            <div class="analytics-chart-card">
+                <div class="analytics-chart-header">
+                    <div class="analytics-chart-title">
+                        <div class="analytics-chart-title-icon">
+                            <i class="fas fa-percent"></i>
+                        </div>
+                        <h3>Historial de Confianza</h3>
                     </div>
-                    <span>Historial de Confianza</span>
-                </h3>
-                <canvas id="dynamicConfidenceChart" style="max-height: 350px;"></canvas>
-                <div class="mt-4 grid grid-cols-3 gap-4">
-                    <div class="text-center">
-                        <p class="text-xs text-gray-500 uppercase font-semibold">Promedio</p>
-                        <p id="dynamicAvgConfidence" class="text-2xl font-black text-blue-600">--</p>
+                </div>
+                <canvas id="dynamicConfidenceChart" class="analytics-chart-canvas" style="max-height: 350px;"></canvas>
+                <div class="analytics-confidence-grid">
+                    <div class="analytics-confidence-stat">
+                        <p class="analytics-confidence-stat-label">Promedio</p>
+                        <p id="dynamicAvgConfidence" class="analytics-confidence-stat-value stat-avg">--</p>
                     </div>
-                    <div class="text-center">
-                        <p class="text-xs text-gray-500 uppercase font-semibold">Mínima</p>
-                        <p id="dynamicMinConfidence" class="text-2xl font-black text-orange-600">--</p>
+                    <div class="analytics-confidence-stat">
+                        <p class="analytics-confidence-stat-label">Mínima</p>
+                        <p id="dynamicMinConfidence" class="analytics-confidence-stat-value stat-min">--</p>
                     </div>
-                    <div class="text-center">
-                        <p class="text-xs text-gray-500 uppercase font-semibold">Máxima</p>
-                        <p id="dynamicMaxConfidence" class="text-2xl font-black text-green-600">--</p>
+                    <div class="analytics-confidence-stat">
+                        <p class="analytics-confidence-stat-label">Máxima</p>
+                        <p id="dynamicMaxConfidence" class="analytics-confidence-stat-value stat-max">--</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Detalles Técnicos -->
-        <div class="recognition-card">
-            <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center space-x-2">
-                <div class="icon-box w-10 h-10 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-cog text-white"></i>
+        <div class="analytics-tech-card">
+            <div class="analytics-tech-header">
+                <div class="analytics-tech-icon">
+                    <i class="fas fa-cog"></i>
                 </div>
-                <span>Configuración del Modelo</span>
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-200">
-                    <p class="text-xs font-bold text-gray-600 uppercase mb-1">Arquitectura</p>
-                    <p class="text-xl font-black text-blue-700">CNN + BiGRU</p>
-                    <p class="text-xs text-gray-500 mt-1">Secuencias temporales</p>
+                <h3>Configuración del Modelo</h3>
+            </div>
+            <div class="analytics-tech-grid">
+                <div class="analytics-tech-item">
+                    <p class="analytics-tech-item-label">Arquitectura</p>
+                    <p class="analytics-tech-item-value">CNN + BiGRU</p>
+                    <p class="analytics-tech-item-desc">Secuencias temporales</p>
                 </div>
-                <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
-                    <p class="text-xs font-bold text-gray-600 uppercase mb-1">Clases</p>
-                    <p class="text-xl font-black text-purple-700">22 Señas</p>
-                    <p class="text-xs text-gray-500 mt-1">Palabras y frases</p>
+                <div class="analytics-tech-item">
+                    <p class="analytics-tech-item-label">Clases</p>
+                    <p class="analytics-tech-item-value">22 Señas</p>
+                    <p class="analytics-tech-item-desc">Palabras y frases</p>
                 </div>
-                <div class="bg-gradient-to-br from-green-50 to-teal-50 rounded-xl p-4 border border-green-200">
-                    <p class="text-xs font-bold text-gray-600 uppercase mb-1">Entrada</p>
-                    <p class="text-xl font-black text-green-700">20x224x224x3</p>
-                    <p class="text-xs text-gray-500 mt-1">Secuencia de frames</p>
+                <div class="analytics-tech-item">
+                    <p class="analytics-tech-item-label">Entrada</p>
+                    <p class="analytics-tech-item-value">20x224x224x3</p>
+                    <p class="analytics-tech-item-desc">Secuencia de frames</p>
                 </div>
             </div>
         </div>
@@ -380,8 +388,8 @@
                     {
                         label: 'Entrenamiento',
                         data: staticHistory.accuracy.map(v => v * 100),
-                        borderColor: 'rgb(59, 130, 246)',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderColor: '#415E72',
+                        backgroundColor: 'rgba(65, 94, 114, 0.1)',
                         tension: 0.4,
                         borderWidth: 3,
                         pointRadius: 0
@@ -389,8 +397,8 @@
                     {
                         label: 'Validación',
                         data: staticHistory.val_accuracy.map(v => v * 100),
-                        borderColor: 'rgb(139, 92, 246)',
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderColor: '#baa4cb',
+                        backgroundColor: 'rgba(186, 164, 203, 0.1)',
                         tension: 0.4,
                         borderWidth: 3,
                         pointRadius: 0
@@ -429,7 +437,7 @@
                     {
                         label: 'Entrenamiento',
                         data: staticHistory.loss,
-                        borderColor: 'rgb(239, 68, 68)',
+                        borderColor: '#ef4444',
                         backgroundColor: 'rgba(239, 68, 68, 0.1)',
                         tension: 0.4,
                         borderWidth: 3,
@@ -438,7 +446,7 @@
                     {
                         label: 'Validación',
                         data: staticHistory.val_loss,
-                        borderColor: 'rgb(245, 158, 11)',
+                        borderColor: '#f59e0b',
                         backgroundColor: 'rgba(245, 158, 11, 0.1)',
                         tension: 0.4,
                         borderWidth: 3,
@@ -487,8 +495,8 @@
                     {
                         label: 'Entrenamiento',
                         data: dynamicHistory.accuracy.map(v => v * 100),
-                        borderColor: 'rgb(59, 130, 246)',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderColor: '#415E72',
+                        backgroundColor: 'rgba(65, 94, 114, 0.1)',
                         tension: 0.4,
                         borderWidth: 3,
                         pointRadius: 0
@@ -496,8 +504,8 @@
                     {
                         label: 'Validación',
                         data: dynamicHistory.val_accuracy.map(v => v * 100),
-                        borderColor: 'rgb(139, 92, 246)',
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderColor: '#baa4cb',
+                        backgroundColor: 'rgba(186, 164, 203, 0.1)',
                         tension: 0.4,
                         borderWidth: 3,
                         pointRadius: 0
@@ -536,7 +544,7 @@
                     {
                         label: 'Entrenamiento',
                         data: dynamicHistory.loss,
-                        borderColor: 'rgb(239, 68, 68)',
+                        borderColor: '#ef4444',
                         backgroundColor: 'rgba(239, 68, 68, 0.1)',
                         tension: 0.4,
                         borderWidth: 3,
@@ -545,7 +553,7 @@
                     {
                         label: 'Validación',
                         data: dynamicHistory.val_loss,
-                        borderColor: 'rgb(245, 158, 11)',
+                        borderColor: '#f59e0b',
                         backgroundColor: 'rgba(245, 158, 11, 0.1)',
                         tension: 0.4,
                         borderWidth: 3,
@@ -557,12 +565,7 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'top' },
-                    tooltip: {
-                        callbacks: {
-                            label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(4)}`
-                        }
-                    }
+                    legend: { position: 'top' }
                 },
                 scales: {
                     y: { beginAtZero: true },
@@ -605,12 +608,12 @@
                     if (maxConfidenceEl) maxConfidenceEl.textContent = '--';
                 }
 
-                // Gráfico de uso por clase (Top 10)
+                // Gráfico de uso por clase (Top 5)
                 const usageChartEl = document.getElementById(`${modelType}UsageChart`);
                 if (usageChartEl && stats.by_class) {
                     const sortedClasses = Object.entries(stats.by_class)
                         .sort(([,a], [,b]) => b.count - a.count)
-                        .slice(0, 10);
+                        .slice(0, 5);
 
                     const labels = sortedClasses.map(([cls,]) => cls);
                     const counts = sortedClasses.map(([,data]) => data.count);
@@ -622,8 +625,8 @@
                             datasets: [{
                                 label: 'Reconocimientos',
                                 data: counts,
-                                backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                                borderColor: 'rgb(59, 130, 246)',
+                                backgroundColor: 'rgba(186, 164, 203, 0.8)',
+                                borderColor: '#baa4cb',
                                 borderWidth: 1
                             }]
                         },
@@ -653,8 +656,8 @@
                             datasets: [{
                                 label: 'Confianza (%)',
                                 data: stats.confidence_history,
-                                borderColor: 'rgb(34, 197, 94)',
-                                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
                                 tension: 0.4,
                                 borderWidth: 2,
                                 pointRadius: 0
@@ -695,56 +698,5 @@
         loadUsageStats('dynamic');
     });
 </script>
-
-<style>
-    .model-tab {
-        color: #6b7280;
-        background: transparent;
-    }
-    .model-tab.active {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
-    .model-section {
-        animation: fadeIn 0.5s ease-in-out;
-    }
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .recognition-card {
-        background: white;
-        border-radius: 1rem;
-        padding: 1.5rem;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-        border: 1px solid #e5e7eb;
-    }
-    .icon-box {
-        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-        color: white;
-    }
-    .gradient-text {
-        background: linear-gradient(90deg, #667eea, #764ba2);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-    .gradient-bg {
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(circle at 20% 30%, rgba(102, 126, 234, 0.2), transparent 60%),
-                    radial-gradient(circle at 80% 70%, rgba(118, 75, 162, 0.2), transparent 60%);
-        z-index: 0;
-    }
-    .orb {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(80px);
-        opacity: 0.4;
-    }
-    .orb-1 { width: 200px; height: 200px; background: #6366f1; top: 10%; left: 5%; }
-    .orb-2 { width: 250px; height: 250px; background: #a855f7; bottom: 15%; right: 10%; }
-    .orb-3 { width: 150px; height: 150px; background: #f59e0b; top: 40%; right: 20%; }
-</style>
 
 {% endblock %}
